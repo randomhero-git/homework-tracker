@@ -1,0 +1,2520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HomeWork Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito+Sans:wght@400;600;700;800&family=Source+Sans+3:wght@400;600;700&family=Lato:wght@400;700;900&family=Poppins:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Comfortaa:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #15264a; }
+  #root { width: 100%; height: 100%; }
+  body {
+    font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* fixed-size window; the scene plate sits exactly behind the frosted widget */
+  .hw-frame { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  .hw-frame > .hw-widget { z-index: 1; }
+  .hw-sceneplate {
+    position: absolute; inset: 0; z-index: 0;
+    filter: blur(9px) saturate(1.3);
+    transform: scale(1.18);
+    transition: background .4s ease;
+  }
+  /* frosted surface overlay sits above the scene backing, below content */
+  .hw-widget::after {
+    content: ""; position: absolute; inset: 0; z-index: 1;
+    background: var(--bg); pointer-events: none;
+  }
+  .hw-widget > * { position: relative; z-index: 2; }
+  .hw-widget > .hw-sceneplate { position: absolute; z-index: 0; }
+  .hw-sceneplate.scene-bloom { background: radial-gradient(120% 120% at 18% 12%, #3a6db5 0%, #2a4d86 38%, #1d3563 70%, #15264a 100%); }
+  .hw-sceneplate.scene-aurora { background: radial-gradient(120% 120% at 22% 10%, #1f8f74 0%, #14635a 40%, #0f4347 72%, #0b2a30 100%); }
+  .hw-sceneplate.scene-dusk { background: linear-gradient(150deg, #f3a26b 0%, #df6f8e 40%, #8a4fa0 74%, #4a3a72 100%); }
+  .hw-sceneplate.scene-graphite { background: radial-gradient(120% 120% at 30% 8%, #3d4047 0%, #2a2c31 46%, #1a1b1f 100%); }
+  .hw-sceneplate.scene-paper { background: radial-gradient(120% 120% at 30% 12%, #eef0f6 0%, #dde2ec 55%, #ccd2e0 100%); }
+  .hw-sceneplate.scene-custom {
+    background: radial-gradient(125% 125% at 22% 8%,
+      color-mix(in srgb, var(--scene-c) 78%, white 22%) 0%,
+      var(--scene-c) 44%,
+      color-mix(in srgb, var(--scene-c) 60%, black 40%) 100%);
+  }
+  /* leopard/cheetah print */
+  .hw-sceneplate.scene-cheetah {
+    background-color: #cfa14a;
+    background-image:
+      radial-gradient(ellipse 7px 6px at 11% 12%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 6px 7px at 22% 13%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 7px at 23% 24%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 6px 6px at 10% 23%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 8px 6px at 40% 7%,  #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 7px at 53% 8%,  #241606 60%, transparent 64%),
+      radial-gradient(ellipse 8px 8px at 54% 18%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 8px at 41% 19%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 9px 7px at 47% 13%, #6e4220 48%, transparent 72%),
+      radial-gradient(ellipse 8px 6px at 73% 14%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 7px at 86% 15%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 8px 8px at 86% 26%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 8px at 73% 27%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 9px 7px at 22% 38%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 8px 8px at 38% 39%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 9px 9px at 39% 52%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 8px 9px at 22% 53%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 12px 9px at 30% 45%, #6e4220 46%, transparent 72%),
+      radial-gradient(ellipse 8px 6px at 57% 44%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 7px at 70% 45%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 8px 8px at 70% 56%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 8px at 57% 57%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 10px 8px at 63% 50%, #6e4220 48%, transparent 72%),
+      radial-gradient(ellipse 8px 6px at 14% 69%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 7px at 27% 70%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 8px 8px at 27% 82%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 8px at 14% 83%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 8px 6px at 70% 74%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 7px at 84% 75%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 8px 8px at 84% 86%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 7px 8px at 70% 87%, #241606 60%, transparent 64%),
+      radial-gradient(ellipse 10px 8px at 76% 80%, #6e4220 48%, transparent 72%),
+      radial-gradient(ellipse 5px 5px at 62% 30%, #241606 62%, transparent 66%),
+      radial-gradient(ellipse 4px 5px at 92% 40%, #241606 62%, transparent 66%),
+      radial-gradient(ellipse 5px 4px at 44% 64%, #241606 62%, transparent 66%),
+      radial-gradient(ellipse 4px 4px at 8% 48%,  #241606 62%, transparent 66%),
+      radial-gradient(ellipse 5px 4px at 93% 64%, #241606 62%, transparent 66%);
+    background-size: 200px 200px;
+    background-repeat: repeat;
+  }
+
+  /* tactical — dark ops matte with subtle grid scanlines */
+  .hw-sceneplate.scene-tactical {
+    background-color: #0d1117;
+    background-image:
+      linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  /* joker — chaotic purple-green smear */
+  .hw-sceneplate.scene-joker {
+    background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 25%, #0a2818 50%, #1a0a2e 75%, #3d1560 100%);
+  }
+  /* hacker — classic green-on-black terminal with scanlines */
+  .hw-sceneplate.scene-hacker {
+    background-color: #020a02;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,255,65,0.03) 0px, rgba(0,255,65,0.03) 1px, transparent 1px, transparent 3px),
+      radial-gradient(ellipse at 50% 0%, rgba(0,255,65,0.08) 0%, transparent 70%);
+  }
+  /* ---------- widget shell ---------- */
+  .hw-widget {
+    --accent: #0067C0;
+    --font: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+    --row-pad: 11px;
+    --gap: 6px;
+
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: var(--font);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hw-frame { animation: hw-in .45s cubic-bezier(.2,.8,.25,1) both; }
+  }
+  @keyframes hw-in { from { transform: translateY(10px) scale(.985); } }
+
+  /* light theme tokens — Amendment 4: --text-3 #8e8f9a -> #777885 */
+  .hw-widget.theme-light {
+    --bg: rgba(248, 249, 252, 0.82);
+    --card: #ffffff;
+    --card-2: #f4f5f8;
+    --text: #1b1b1f;
+    --text-2: #5a5b66;
+    --text-3: #777885;
+    --border: rgba(0,0,0,0.08);
+    --border-2: rgba(0,0,0,0.05);
+    --hover: rgba(0,0,0,0.045);
+    background: var(--bg);
+    box-shadow: 0 24px 60px -16px rgba(10,20,50,.55), 0 0 0 1px rgba(255,255,255,.5) inset;
+  }
+  /* dark theme tokens */
+  .hw-widget.theme-dark {
+    --bg: rgba(34, 35, 40, 0.78);
+    --card: rgba(255,255,255,0.045);
+    --card-2: rgba(255,255,255,0.025);
+    --text: #f3f3f6;
+    --text-2: #b6b7c0;
+    --text-3: #8a8b95;
+    --border: rgba(255,255,255,0.10);
+    --border-2: rgba(255,255,255,0.06);
+    --hover: rgba(255,255,255,0.06);
+    background: var(--bg);
+    color: var(--text);
+    box-shadow: 0 24px 60px -16px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.07) inset;
+  }
+  .hw-widget { color: var(--text); }
+
+  /* ---------- shapes (form factors) — window sized via api.set_shape; widget fills 100% ---------- */
+  .hw-widget.shape-wide {
+    display: grid;
+    grid-template-columns: 234px 1fr;
+    grid-template-rows: auto auto auto auto auto 1fr auto;
+    grid-template-areas:
+      "chrome chrome"
+      "head  body"
+      "stats body"
+      "alert body"
+      "ctrl  body"
+      "sp    body"
+      "foot  body";
+  }
+  .shape-wide .hw-chrome   { grid-area: chrome; }
+  .shape-wide .hw-head     { grid-area: head; }
+  .shape-wide .hw-stats    { grid-area: stats; grid-template-columns: 1fr 1fr 1fr; }
+  .shape-wide .hw-alert    { grid-area: alert; }
+  .shape-wide .hw-controls { z-index: 10; grid-area: ctrl; flex-wrap: wrap; }
+  .shape-wide .hw-foot     { grid-area: foot; border-top: none; }
+  .shape-wide .hw-body     { grid-area: body; border-left: 1px solid var(--border-2); padding-top: 6px; }
+
+  /* ---------- surfaces (material) — applied to the frost overlay ---------- */
+  .theme-light.surf-solid::after { background: #ffffff; }
+  .theme-dark.surf-solid::after  { background: #26272c; }
+  .theme-light.surf-tinted::after { background: color-mix(in srgb, var(--accent) 10%, rgba(250,250,253,0.86)); }
+  .theme-dark.surf-tinted::after  { background: color-mix(in srgb, var(--accent) 20%, rgba(30,31,36,0.82)); }
+
+  /* ---------- window chrome ---------- */
+  .hw-chrome {
+    flex: none; height: 32px;
+    display: flex; align-items: center; justify-content: flex-start; gap: 8px;
+    padding: 0 12px;
+  }
+  .hw-tl { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; display: inline-block; transition: filter .12s; position: relative; }
+  .hw-tl:hover { filter: brightness(0.85); }
+  .hw-tl::before { content: ""; position: absolute; inset: -4px; }
+  .hw-tl-close { background: #FF5F57; }
+  .hw-tl-min { background: #FFBD2E; }
+  .hw-tl-max { background: #28C840; }
+  .hw-chrome-spacer { flex: 1; }
+  /* Amendment 5: .hw-cap keeps visual size, gains 4px invisible hit area via ::before */
+  .hw-cap {
+    position: relative;
+    width: 24px; height: 20px; border: none; background: transparent;
+    color: var(--text-3); display: grid; place-items: center; cursor: pointer;
+    border-radius: 6px; transition: background .12s, color .12s;
+  }
+  .hw-cap::before {
+    content: ""; position: absolute; inset: -4px;
+  }
+  .hw-cap:hover { background: var(--hover); color: var(--text); }
+  .hw-cap.close:hover { background: #E04860; color: #fff; }
+  .hw-cap-min { width: 10px; height: 1.6px; background: currentColor; border-radius: 2px; }
+  .hw-cap-sq { width: 9px; height: 9px; border: 1.6px solid currentColor; border-radius: 2.5px; }
+
+
+  /* notification dropdown */
+  .hw-notif-drop {
+    position: absolute; top: calc(100% + 5px); right: 0; z-index: 100;
+    width: 280px; padding: 8px;
+    background: #ffffff; color: #1a1a1a;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 11px; box-shadow: 0 16px 36px -8px rgba(0,0,0,.3);
+  }
+  .theme-dark .hw-notif-drop { background: #2c2d33; color: #f3f3f6; border-color: rgba(255,255,255,0.1); }
+  .hw-notif-drop h4 { font-size: 12px; font-weight: 700; margin: 4px 6px 8px; }
+  .hw-notif-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+    border-radius: 8px; font-size: 12px; cursor: default;
+  }
+  .hw-notif-item:hover { background: rgba(0,0,0,0.04); }
+  .theme-dark .hw-notif-item:hover { background: rgba(255,255,255,0.06); }
+  .hw-notif-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .hw-notif-title { flex: 1; font-weight: 500; }
+  .hw-notif-due { font-size: 11px; color: var(--text-3); white-space: nowrap; }
+  .hw-notif-empty { padding: 12px 8px; font-size: 12px; color: var(--text-3); text-align: center; }
+
+  /* ---------- header ---------- */
+  .hw-head {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 4px 16px 12px; z-index: 10;
+  }
+  .hw-title { font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+  .hw-date { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+  .hw-head-r { display: flex; align-items: center; gap: 8px; }
+
+  .hw-iconbtn {
+    position: relative;
+    width: 34px; height: 34px; border-radius: 8px;
+    border: none; background: transparent; color: var(--text-2);
+    display: grid; place-items: center; cursor: pointer;
+    transition: background .12s, color .12s;
+  }
+  .hw-iconbtn:hover { background: var(--hover); color: var(--text); }
+  .hw-iconbtn.sm { width: 28px; height: 28px; }
+  /* Amendment 3: 9.5px -> 10.5px */
+  
+  @keyframes hw-spin { to { transform: rotate(360deg); } }
+  .hw-iconbtn.spinning svg { animation: hw-spin .8s linear infinite; }
+  .hw-iconbtn:disabled { opacity: .5; cursor: default; }
+  .hw-sync-toast {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+    background: var(--accent); color: #fff; z-index: 200;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    animation: hw-toast-in .2s ease-out;
+  }
+  @keyframes hw-toast-in { from { opacity: 0; transform: translateX(-50%) translateY(8px); } }
+  .hw-badge {
+    position: absolute; top: 3px; right: 3px;
+    min-width: 15px; height: 15px; padding: 0 3px;
+    border-radius: 8px; background: #E04860; color: #fff;
+    font-size: 10.5px; font-weight: 700; line-height: 15px; text-align: center;
+  }
+  .hw-addbtn {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    height: 34px; padding: 0 13px;
+    border: none; border-radius: 8px; cursor: pointer;
+    background: var(--accent); color: #fff;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,.18);
+    transition: filter .12s, transform .06s;
+  }
+  .hw-addbtn:hover { filter: brightness(1.08); }
+  .hw-addbtn:active { transform: translateY(1px); }
+
+  /* ---------- stats ---------- */
+  .hw-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; padding: 0 16px 12px;
+  }
+  .hw-stat {
+    background: var(--card); border: 1px solid var(--border-2);
+    border-radius: 10px; padding: 10px 12px;
+  }
+  .theme-dark .hw-stat { background: var(--card); }
+  .hw-stat-val { font-size: 23px; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+  .hw-stat-sub { font-size: 13px; font-weight: 600; color: var(--text-2); margin-left: 1px; }
+  .hw-stat-label { font-size: 11px; color: var(--text-2); margin-top: 5px; }
+
+  .hw-alert {
+    display: flex; align-items: center; gap: 7px;
+    margin: 0 16px 10px; padding: 7px 11px;
+    border-radius: 8px; font-size: 12px; font-weight: 500;
+    background: color-mix(in srgb, #E04860 14%, transparent);
+    color: #E04860;
+  }
+  .theme-dark .hw-alert { color: #ff8a9a; }
+  .hw-alert-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+
+  /* ---------- controls ---------- */
+  .hw-controls { z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 0 16px 10px;
+  }
+  .hw-tabs { display: flex; gap: 2px; background: var(--card-2); border-radius: 9px; padding: 3px; }
+  .hw-tab {
+    display: flex; align-items: center; gap: 5px;
+    border: none; background: transparent; cursor: pointer;
+    font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-2);
+    padding: 6px 11px; border-radius: 7px; transition: background .12s, color .12s;
+  }
+  .hw-tab.on { background: var(--card); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .theme-dark .hw-tab.on { background: rgba(255,255,255,0.10); }
+  /* Amendment 3: 10.5px -> 11px */
+  .hw-tab-n { font-size: 11px; font-weight: 700; color: var(--text-3); }
+  .hw-tab.on .hw-tab-n { color: var(--accent); }
+
+  .hw-coursewrap { position: relative; }
+  .hw-coursebtn {
+    display: flex; align-items: center; gap: 6px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text); cursor: pointer; font-family: inherit;
+    font-size: 12.5px; font-weight: 600;
+    padding: 7px 9px 7px 10px; border-radius: 8px;
+    transition: background .12s;
+  }
+  .hw-coursebtn:hover { background: var(--hover); }
+  .hw-coursemenu {
+    position: absolute; top: calc(100% + 5px); right: 0; z-index: 100;
+    min-width: 178px; padding: 5px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 11px; box-shadow: 0 16px 36px -8px rgba(0,0,0,.4);
+    backdrop-filter: blur(20px);
+  }
+  .theme-dark .hw-coursemenu { background: #2c2d33; }
+  .hw-courseopt {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    border: none; background: transparent; color: var(--text);
+    cursor: pointer; font-family: inherit; font-size: 13px;
+    padding: 8px 9px; border-radius: 7px; text-align: left;
+    transition: background .1s;
+  }
+  .hw-courseopt:hover { background: var(--hover); }
+  .hw-courseopt.on { color: var(--accent); font-weight: 600; }
+  .hw-cdot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+  /* ---------- body / list ---------- */
+  .hw-body { flex: 1; overflow-y: auto; padding: 0 10px 6px; }
+  .hw-body::-webkit-scrollbar { width: 9px; }
+  .hw-body::-webkit-scrollbar-thumb {
+    background: var(--border); border-radius: 9px; border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+  .hw-body:hover::-webkit-scrollbar-thumb { background: var(--text-3); background-clip: padding-box; }
+
+  .hw-group { margin-bottom: 4px; }
+  .hw-group-h {
+    display: flex; align-items: center; gap: 7px;
+    padding: 10px 8px 5px; font-size: 11.5px; font-weight: 700;
+    color: var(--text-2); text-transform: uppercase; letter-spacing: .04em;
+  }
+  .hw-group-h.overdue { color: #E04860; }
+  .theme-dark .hw-group-h.overdue { color: #ff8a9a; }
+  /* Amendment 3: 10.5px -> 11px */
+  .hw-group-n {
+    font-size: 11px; font-weight: 700; color: var(--text-3);
+    background: var(--card-2); border-radius: 20px; padding: 1px 7px; letter-spacing: 0;
+  }
+  .hw-grade-pill {
+    margin-left: auto; font-size: 11px; font-weight: 700; color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    padding: 2px 8px; border-radius: 20px; letter-spacing: 0;
+  }
+
+  /* ---- full row ---- */
+  .hw-row {
+    border-radius: 10px; margin-bottom: var(--gap);
+    transition: background .12s;
+  }
+  .hw-row.expanded { background: var(--card); box-shadow: 0 2px 10px -4px rgba(0,0,0,.18); }
+  .theme-dark .hw-row.expanded { background: rgba(255,255,255,0.05); }
+  .hw-row-main {
+    display: flex; align-items: center; gap: 11px;
+    padding: var(--row-pad) 10px var(--row-pad) 8px;
+    cursor: pointer; border-radius: 10px;
+    position: relative;
+  }
+  .hw-row:not(.expanded) .hw-row-main:hover { background: var(--hover); }
+  .hw-course-bar { width: 3px; align-self: stretch; border-radius: 3px; margin: 2px 0; flex: none; }
+
+  .hw-check {
+    flex: none; border: 2px solid; border-radius: 50%;
+    background: transparent; cursor: pointer; display: grid; place-items: center;
+    transition: transform .1s, background .15s, border-color .15s;
+  }
+  .hw-check:hover { transform: scale(1.12); }
+
+  .hw-row-body { flex: 1; min-width: 0; }
+  .hw-row-title {
+    font-size: 13.5px; font-weight: 600; line-height: 1.3;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .hw-row-title.done { text-decoration: line-through; color: var(--text-3); font-weight: 500; }
+  .hw-row-meta { display: flex; align-items: center; gap: 9px; margin-top: 3px; flex-wrap: wrap; }
+  .hw-course-tag { font-size: 11px; font-weight: 700; letter-spacing: .01em; white-space: nowrap; }
+  .hw-due {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11.5px; color: var(--text-2); white-space: nowrap;
+  }
+  .hw-due.overdue { color: #E04860; font-weight: 600; }
+  .theme-dark .hw-due.overdue { color: #ff8a9a; }
+  .hw-pri { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; }
+  .hw-ip-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex: none;
+    background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .hw-row-chev { color: var(--text-3); flex: none; transition: transform .18s; }
+  .hw-row-chev.open { transform: rotate(180deg); }
+
+  /* ---- detail ---- */
+  .hw-detail { padding: 2px 14px 14px 22px; animation: hw-fade .2s ease both; }
+  @keyframes hw-fade { from { transform: translateY(-3px); } }
+  .hw-detail-notes { font-size: 12.5px; color: var(--text-2); line-height: 1.5; margin-bottom: 11px; }
+  .hw-detail-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 9px 14px; margin-bottom: 11px;
+  }
+  .hw-detail-grid > div { display: flex; flex-direction: column; gap: 2px; }
+  /* Amendment 3: 10.5px -> 11px */
+  .hw-dt-k { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+  .hw-dt-v { font-size: 13px; font-weight: 600; }
+  .hw-attach { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .hw-chip {
+    display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+    font-size: 11.5px; color: var(--text-2); font-weight: 500;
+    background: var(--card-2); border: 1px solid var(--border-2);
+    padding: 4px 9px 4px 7px; border-radius: 7px;
+  }
+
+  .hw-status-seg {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 4px;
+    background: var(--card-2); padding: 3px; border-radius: 9px; margin-bottom: 11px;
+  }
+  .hw-seg-btn {
+    border: none; background: transparent; cursor: pointer; font-family: inherit;
+    font-size: 11.5px; font-weight: 600; color: var(--text-2);
+    padding: 6px 4px; border-radius: 7px; transition: background .12s, color .12s;
+  }
+  .hw-seg-btn.on { background: var(--accent); color: #fff; }
+  .hw-detail-actions { display: flex; gap: 8px; }
+  .hw-tbtn {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+    cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600;
+    padding: 6px 11px; border-radius: 7px; transition: background .12s;
+  }
+  .hw-tbtn:hover { background: var(--hover); }
+  .hw-tbtn.danger { color: #E04860; }
+  .hw-tbtn.danger:hover { background: color-mix(in srgb, #E04860 12%, transparent); }
+
+  /* ---- compact rows ---- */
+  .hw-list.compact .hw-group { margin-bottom: 2px; }
+  .hw-cwrap { border-radius: 8px; }
+  .hw-cwrap.expanded { background: var(--card); box-shadow: 0 2px 10px -4px rgba(0,0,0,.18); margin-bottom: var(--gap); }
+  .theme-dark .hw-cwrap.expanded { background: rgba(255,255,255,0.05); }
+  .hw-cwrap.expanded .hw-detail { padding-left: 14px; padding-top: 4px; }
+  .hw-crow {
+    display: flex; align-items: center; gap: 9px;
+    padding: calc(var(--row-pad) - 3px) 10px; border-radius: 8px; cursor: pointer;
+    transition: background .1s;
+  }
+  .hw-crow:hover { background: var(--hover); }
+  .hw-bdot { flex: none; }
+  .hw-crow .hw-cdot { width: 8px; height: 8px; border-radius: 50%; }
+  .hw-ctitle { flex: 1; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hw-ctitle.done { text-decoration: line-through; color: var(--text-3); }
+  .hw-ctime { font-size: 11.5px; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .hw-ctime.overdue { color: #E04860; font-weight: 600; }
+  .hw-crow.done-row { cursor: default; }
+  .hw-pts { font-size: 12px; font-weight: 700; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+  /* ---- board ---- */
+  .hw-board { display: flex; gap: 8px; padding: 8px 6px; height: 100%; }
+  .hw-bcol { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .hw-bcol-h {
+    display: flex; align-items: center; gap: 6px; padding: 4px 6px 9px;
+    font-size: 11px; font-weight: 700; color: var(--text-2);
+  }
+  .hw-bdot { width: 8px; height: 8px; border-radius: 50%; }
+  .hw-bcol-body { display: flex; flex-direction: column; gap: 7px; overflow-y: auto; }
+  .hw-bcard {
+    background: var(--card); border: 1px solid var(--border-2);
+    border-top: 2px solid; border-radius: 9px; padding: 9px 9px 7px; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06); transition: transform .08s, box-shadow .12s;
+  }
+  .hw-bcard:hover { transform: translateY(-1px); box-shadow: 0 6px 14px -5px rgba(0,0,0,.22); }
+  .hw-bcard-title { font-size: 12px; font-weight: 600; line-height: 1.3; margin-bottom: 6px; }
+  .hw-bcard-meta { display: flex; justify-content: space-between; font-size: 10px; font-weight: 600; color: var(--text-3); }
+  .hw-bcard-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .hw-bempty { font-size: 11px; color: var(--text-3); text-align: center; padding: 14px 0; }
+
+  /* ---- calendar ---- */
+  .hw-cal { padding: 6px 6px 4px; display: flex; flex-direction: column; height: 100%; }
+  .hw-cal-nav { display: flex; align-items: center; gap: 4px; padding: 2px 4px 8px; }
+  .hw-cal-month { font-size: 14px; font-weight: 700; letter-spacing: -.01em; }
+  .hw-cal-today {
+    margin-left: auto; border: 1px solid var(--border); background: var(--card);
+    color: var(--text-2); cursor: pointer; font-family: inherit;
+    font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: 7px;
+    transition: background .12s, color .12s;
+  }
+  .hw-cal-today:hover { background: var(--hover); color: var(--text); }
+  .hw-cal-dow {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    padding: 0 2px 4px;
+  }
+  .hw-cal-dow span {
+    text-align: center; font-size: 10px; font-weight: 700;
+    color: var(--text-3); text-transform: uppercase; letter-spacing: .03em;
+  }
+  .hw-cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr; gap: 2px; padding: 0 2px;
+    flex: none;
+  }
+  .hw-cal-cell {
+    position: relative; min-height: 38px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 5px 0 4px; border: 1px solid transparent; border-radius: 8px;
+    background: transparent; cursor: pointer; font-family: inherit;
+    transition: background .1s, border-color .1s;
+  }
+  .hw-cal-cell:hover { background: var(--hover); }
+  .hw-cal-num { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1; }
+  .hw-cal-cell.out .hw-cal-num { color: var(--text-3); opacity: .55; }
+  .hw-cal-cell.today { background: color-mix(in srgb, var(--accent) 13%, transparent); }
+  .hw-cal-cell.today .hw-cal-num { color: var(--accent); font-weight: 800; }
+  .hw-cal-cell.sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .hw-cal-cell.sel.today { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+  .hw-cal-dots { display: flex; align-items: center; gap: 2px; height: 6px; }
+  .hw-cal-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .hw-cal-more { font-size: 8px; font-weight: 700; color: var(--text-3); line-height: 1; }
+
+  .hw-cal-day {
+    flex: none; overflow-y: auto; max-height: 160px;
+    margin: 0 2px 6px; padding: 6px 0 4px;
+    background: var(--card); border: 1px solid var(--border-2);
+    border-radius: 10px;
+    animation: hw-day-in .15s ease-out;
+  }
+  @keyframes hw-day-in { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 160px; } }
+  .hw-cal-day .hw-cal-day-h { padding: 5px 10px 4px; }
+  .hw-cal-day .hw-cal-empty { padding: 4px 10px 8px; }
+  .hw-cal-day .hw-cwrap { padding: 0 4px; }
+  .hw-cal-day .hw-crow { padding: 5px 6px; }
+  .hw-cal-day-h {
+    display: flex; align-items: center; gap: 7px;
+    padding: 6px 8px 5px; font-size: 11.5px; font-weight: 700;
+    color: var(--text-2);
+  }
+  .hw-cal-empty { font-size: 12px; color: var(--text-3); padding: 8px 8px 12px; }
+
+  /* ---- empty ---- */
+  .hw-empty {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; height: 100%; min-height: 180px; color: var(--text-3);
+  }
+  .hw-empty p { font-size: 13px; }
+
+  /* ---------- footer ---------- */
+  .hw-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 12px 9px 16px; border-top: 1px solid var(--border-2);
+    font-size: 11.5px; color: var(--text-3);
+  }
+
+  /* ---------- modal ---------- */
+  .hw-modal-back {
+    position: absolute; inset: 0; z-index: 200;
+    overflow: hidden;
+    background: rgba(8,14,30,.65); backdrop-filter: blur(6px);
+    display: grid; place-items: center; padding: 18px;
+  }
+  .hw-modal {
+    width: 100%; max-width: 348px; max-height: 100%; overflow-y: auto;
+    background: #ffffff; color: #1a1a1a;
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px; box-shadow: 0 24px 60px -12px rgba(0,0,0,.5);
+    animation: hw-pop .2s cubic-bezier(.2,.8,.25,1) both;
+  }
+  .theme-dark .hw-modal { background: #2a2b31; color: #f3f3f6; }
+  @keyframes hw-pop { from { transform: scale(.96) translateY(6px); } }
+  .hw-modal-h {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 15px; font-weight: 700; margin-bottom: 14px;
+  }
+  .hw-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 11px; }
+  .hw-field > span { font-size: 11.5px; font-weight: 600; color: var(--text-2); }
+  .hw-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .hw-field input, .hw-field select, .hw-field textarea {
+    font-family: inherit; font-size: 13px; color: var(--text);
+    background: var(--card-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 10px; outline: none;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .hw-field textarea { resize: vertical; }
+  .hw-field input:focus, .hw-field select:focus, .hw-field textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .theme-dark .hw-field input, .theme-dark .hw-field select, .theme-dark .hw-field textarea {
+    color-scheme: dark;
+  }
+  .hw-modal-foot { display: flex; justify-content: flex-end; gap: 9px; margin-top: 4px; }
+  .hw-btn {
+    border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600;
+    padding: 9px 16px; border-radius: 8px; transition: filter .12s, background .12s;
+  }
+  .hw-btn.ghost { background: transparent; color: var(--text-2); border: 1px solid var(--border); }
+  .hw-btn.ghost:hover { background: var(--hover); }
+  .hw-btn.primary { background: var(--accent); color: #fff; }
+  .hw-btn.primary:hover { filter: brightness(1.08); }
+  .hw-btn.primary:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+
+  /* ---------- tweak: theme presets ---------- */
+  .hw-presets {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px;
+    padding: 2px 0 4px;
+  }
+  .hw-preset {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    border: none; background: transparent; cursor: pointer; padding: 2px;
+    font-family: inherit;
+  }
+  .hw-preset-sw {
+    position: relative; width: 100%; height: 38px; border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 1px 3px rgba(0,0,0,.25);
+    transition: transform .1s;
+  }
+  .hw-preset:hover .hw-preset-sw { transform: translateY(-1px); }
+  .hw-preset-acc {
+    position: absolute; left: 6px; bottom: 6px;
+    width: 11px; height: 11px; border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.85);
+  }
+  .hw-preset-name { font-size: 11px; font-weight: 600; color: #1a1a1a; }
+  .hw-preset.on .hw-preset-sw { box-shadow: 0 0 0 2px var(--accent), 0 1px 3px rgba(0,0,0,.25); }
+  .hw-preset.on .hw-preset-name { opacity: 1; }
+
+  /* ===== feature additions (terms, course mgmt, posts, projection) ===== */
+
+  /* 4-up stats */
+  .hw-stats.four { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .hw-stats.four .hw-stat { padding: 9px 8px; }
+  .hw-stats.four .hw-stat-val { font-size: 19px; }
+  .hw-stats.four .hw-stat-label { font-size: 10px; margin-top: 4px; }
+  .shape-wide .hw-stats.four { grid-template-columns: 1fr 1fr; }
+
+  /* term selector pill */
+  .hw-termwrap { position: relative; margin-top: 3px; }
+  .hw-termbtn {
+    display: inline-flex; align-items: center; gap: 5px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text-2); cursor: pointer; font-family: inherit;
+    font-size: 11.5px; font-weight: 600;
+    padding: 4px 8px; border-radius: 7px; transition: background .12s, color .12s;
+  }
+  .hw-termbtn:hover { background: var(--hover); color: var(--text); }
+  .hw-termwrap .hw-coursemenu { right: auto; left: 0; }
+
+  /* menu rows with action icons */
+  .hw-courseopt.row { display: flex; align-items: center; gap: 2px; padding: 2px; width: 100%; }
+  .hw-courseopt.row:hover { background: transparent; }
+  .hw-courseopt-main {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 9px;
+    border: none; background: transparent; color: var(--text);
+    cursor: pointer; font-family: inherit; font-size: 13px;
+    padding: 7px 8px; border-radius: 7px; text-align: left;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: background .1s;
+  }
+  .hw-courseopt-main:hover { background: var(--hover); }
+  .hw-courseopt.row.on .hw-courseopt-main { color: var(--accent); font-weight: 600; }
+  .hw-courseopt-main .hw-cdot, .hw-courseopt-main svg { flex: none; }
+  .hw-rowicon {
+    flex: none; width: 26px; height: 26px; border-radius: 6px;
+    border: none; background: transparent; color: var(--text-3);
+    display: grid; place-items: center; cursor: pointer; transition: background .1s, color .1s;
+  }
+  .hw-rowicon:hover { background: var(--hover); color: var(--text); }
+  .hw-rowicon.danger:hover { color: #E04860; background: color-mix(in srgb, #E04860 12%, transparent); }
+  .hw-menu-add {
+    display: flex; align-items: center; gap: 7px; width: 100%;
+    border: none; background: transparent; color: var(--accent);
+    cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 600;
+    padding: 8px 9px; border-radius: 7px; margin-top: 2px; text-align: left;
+    transition: background .1s;
+  }
+  .hw-menu-add:hover { background: var(--hover); }
+  .hw-menu-note { font-size: 11px; color: var(--text-3); padding: 6px 9px; }
+
+  /* discussion posts */
+  .hw-posts {
+    background: var(--card-2); border: 1px solid var(--border-2);
+    border-radius: 9px; padding: 9px 10px; margin-bottom: 11px;
+  }
+  .hw-posts-h {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font-size: 11.5px; font-weight: 700; color: var(--text-2); margin-bottom: 6px;
+  }
+  .hw-posts-h > span { white-space: nowrap; }
+  .hw-posts-count { font-size: 11px; font-weight: 700; color: var(--accent); }
+  .hw-post {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    border: none; background: transparent; color: var(--text);
+    cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 500;
+    padding: 5px 4px; border-radius: 6px; text-align: left; transition: background .1s;
+  }
+  .hw-post:hover { background: var(--hover); }
+  .hw-post-box {
+    flex: none; width: 18px; height: 18px; border-radius: 5px;
+    border: 1.8px solid var(--text-3); display: grid; place-items: center;
+    color: #fff; transition: background .12s, border-color .12s;
+  }
+  .hw-post.on .hw-post-box { background: var(--accent); border-color: var(--accent); }
+  .hw-post.on { color: var(--text-2); }
+
+  /* discussion sub-progress pills */
+  /* Amendment 3: 10.5px -> 11px */
+  .hw-posts-pill {
+    display: inline-flex; align-items: center; white-space: nowrap;
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 13%, transparent);
+    padding: 1px 7px; border-radius: 20px;
+  }
+  .hw-cposts {
+    flex: none; font-size: 10px; font-weight: 700; color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 13%, transparent);
+    padding: 1px 6px; border-radius: 20px;
+  }
+
+  /* completed-tab grades */
+  .hw-grades { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .hw-grades .hw-grade-pill { margin-left: 0; }
+  .hw-grade-pill.proj { color: var(--text-2); background: var(--card-2); }
+
+  /* color picker */
+  .hw-colorpick {
+    position: relative; display: flex; align-items: center; gap: 8px;
+    background: var(--card-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 9px; height: 38px;
+  }
+  .hw-colorpick input[type="color"] {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer; padding: 0; border: none;
+  }
+  .hw-colorpick-sw { width: 20px; height: 20px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); flex: none; }
+  .hw-colorpick-hex { font-size: 12px; font-weight: 600; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+  /* empty-state action button + disabled add */
+  .hw-empty-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px;
+    border: none; background: var(--accent); color: #fff;
+    cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600;
+    padding: 9px 15px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.18);
+    transition: filter .12s;
+  }
+  .hw-empty-btn:hover { filter: brightness(1.08); }
+  .hw-addbtn:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+  /* Amendment 3: 10.5px -> 11px */
+  .hw-field-opt { font-weight: 500; color: var(--text-3); font-size: 11px; }
+
+  /* Amendment 2: global focus-visible ring */
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- app.py replaces HWCFG_API_BASE_PLACEHOLDER with the actual api_base from config.json -->
+  <script>window.HW_API_BASE = "HWCFG_API_BASE_PLACEHOLDER";</script>
+
+  <script>
+(function () {
+  const NOW = new Date();
+  const TERMS = [];
+  const COURSES = {};
+  const ASSIGNMENTS = [];
+  const ASSIGNMENT_TYPES = ["assignment", "discussion", "seminar", "lab", "quiz"];
+  const TYPE_LABEL = {
+    assignment: "Assignment", discussion: "Discussion", seminar: "Seminar", lab: "Lab", quiz: "Quiz",
+  };
+
+  function startOfDay(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+  function dayDiff(iso) {
+    return Math.round((startOfDay(new Date(iso)) - startOfDay(NOW)) / 86400000);
+  }
+  function dueLabel(iso) {
+    const diff = dayDiff(iso);
+    if (diff < 0) return diff === -1 ? "Yesterday" : `${-diff} days ago`;
+    if (diff === 0) return "Today";
+    if (diff === 1) return "Tomorrow";
+    if (diff < 7) return new Date(iso).toLocaleDateString(undefined, { weekday: "long" });
+    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+  function timeLabel(iso) {
+    return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  }
+  function groupKey(iso) {
+    const diff = dayDiff(iso);
+    if (diff < 0) return "overdue";
+    if (diff === 0) return "today";
+    if (diff === 1) return "tomorrow";
+    if (diff < 7) return "week";
+    return "later";
+  }
+  const GROUP_ORDER = ["overdue", "today", "tomorrow", "week", "later"];
+  const GROUP_LABEL = {
+    overdue: "Overdue", today: "Today", tomorrow: "Tomorrow",
+    week: "This week", later: "Later",
+  };
+  function fmtEst(min) {
+    if (min < 60) return `${min}m`;
+    const h = Math.floor(min / 60), m = min % 60;
+    return m ? `${h}h ${m}m` : `${h}h`;
+  }
+
+  window.HW = {
+    NOW, COURSES, ASSIGNMENTS, TERMS, ASSIGNMENT_TYPES, TYPE_LABEL,
+    dayDiff, dueLabel, timeLabel, groupKey, GROUP_ORDER, GROUP_LABEL, fmtEst,
+    cc: (id) => (id ? `var(--c-${id})` : "var(--text-2)"),
+    course: (id) => HW.COURSES[id] || { id, name: "—", short: "—", color: "#888", term: null },
+  };
+})();
+  </script>
+
+  <script type="text/babel">
+// ── useTweaks (rewired for pywebview) ─────────────────────────────────────────
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  const valRef = React.useRef(defaults);
+  const pyReady = React.useRef(false);
+
+  React.useEffect(() => {
+    const doLoad = () => {
+      pyReady.current = true;
+      window.pywebview.api.load_tweaks().then((saved) => {
+        if (saved && typeof saved === 'object') {
+          const merged = { ...valRef.current, ...saved };
+          valRef.current = merged;
+          setValues(merged);
+        }
+      }).catch(() => {});
+    };
+    if (window.pywebview) {
+      doLoad();
+    } else {
+      window.addEventListener('pywebviewready', doLoad, { once: true });
+    }
+    return () => window.removeEventListener('pywebviewready', doLoad);
+  }, []);
+
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    const next = { ...valRef.current, ...edits };
+    valRef.current = next;
+    setValues(next);
+    if (pyReady.current && window.pywebview) {
+      if (edits.shape) {
+        window.pywebview.api.set_shape(edits.shape).then(() => { setTimeout(() => window.dispatchEvent(new Event('resize')), 150); }).catch(() => {});
+      }
+      window.pywebview.api.save_tweaks(JSON.stringify(next)).catch(() => {});
+    }
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+
+  return [values, setTweak];
+}
+
+// ── TweaksPanel (rewired: custom events instead of postMessage) ───────────────
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:8px;bottom:8px;z-index:2147483646;width:calc(100vw - 16px);max-width:360px;
+    max-height:calc(100vh - 60px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:#faf9f7;color:#1a1a1a;
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(30,30,30,.7);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(30,30,30,.75);font-variant-numeric:tabular-nums}
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+  .twk-field{appearance:none;box-sizing:border-box;width:100%;min-width:0;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+  .twk-num{display:flex;align-items:center;box-sizing:border-box;min-width:0;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(30,30,30,.8);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),
+    0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+`;
+
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onOpen = () => setOpen(true);
+    const onClose = () => setOpen(false);
+    window.addEventListener('hw:tweak:open', onOpen);
+    window.addEventListener('hw:tweak:close', onClose);
+    return () => {
+      window.removeEventListener('hw:tweak:open', onOpen);
+      window.removeEventListener('hw:tweak:close', onClose);
+    };
+  }, []);
+
+  const dismiss = () => setOpen(false);
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel"
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>&#x2715;</button>
+        </div>
+        <div className="twk-body">
+          {children}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+  if (!fitsAsSegments) {
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return <TweakSelect label={label} value={value} options={options}
+                        onChange={(s) => onChange(resolve(s))} />;
+  }
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value}
+               onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }}
+                    onClick={() => onChange(o)}>
+              {sup.length > 0 && (
+                <span>
+                  {sup.map((c, j) => <i key={j} style={{ background: c }} />)}
+                </span>
+              )}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+  </script>
+
+  <script type="text/babel">
+const { useState } = React;
+
+const Ic = {
+  plus:  (p) => <svg viewBox="0 0 20 20" {...p}><path d="M10 4v12M4 10h12" /></svg>,
+  check: (p) => <svg viewBox="0 0 20 20" {...p}><path d="M4.5 10.5l3.5 3.5 7.5-8" /></svg>,
+  flag:  (p) => <svg viewBox="0 0 20 20" {...p}><path d="M5 3v14M5 4h9l-2 3 2 3H5" /></svg>,
+  clock: (p) => <svg viewBox="0 0 20 20" {...p}><circle cx="10" cy="10" r="6.5" /><path d="M10 6.5V10l2.5 1.5" /></svg>,
+  clip:  (p) => <svg viewBox="0 0 20 20" {...p}><path d="M14 7.5l-5.2 5.2a2.2 2.2 0 0 1-3.1-3.1l5.6-5.6a3.4 3.4 0 0 1 4.8 4.8L10 14.8" /></svg>,
+  chev:  (p) => <svg viewBox="0 0 20 20" {...p}><path d="M5.5 8l4.5 4.5L14.5 8" /></svg>,
+  chevL: (p) => <svg viewBox="0 0 20 20" {...p}><path d="M12 5.5L7.5 10l4.5 4.5" /></svg>,
+  chevR: (p) => <svg viewBox="0 0 20 20" {...p}><path d="M8 5.5l4.5 4.5L8 14.5" /></svg>,
+  bell:  (p) => <svg viewBox="0 0 20 20" {...p}><path d="M6 9a4 4 0 0 1 8 0c0 3 1 4 1.5 4.5h-11C5 13 6 12 6 9zM8.3 16a1.8 1.8 0 0 0 3.4 0" /></svg>,
+  gear:  (p) => <svg viewBox="0 0 20 20" {...p}><circle cx="10" cy="10" r="2.4" /><path d="M10 3.2v1.6M10 15.2v1.6M16.8 10h-1.6M4.8 10H3.2M14.8 5.2l-1.1 1.1M6.3 13.7l-1.1 1.1M14.8 14.8l-1.1-1.1M6.3 6.3 5.2 5.2" /></svg>,
+  cal:   (p) => <svg viewBox="0 0 20 20" {...p}><rect x="3.5" y="4.5" width="13" height="12" rx="1.6" /><path d="M3.5 8h13M7 3v3M13 3v3" /></svg>,
+  sync:  (p) => <svg viewBox="0 0 20 20" {...p}><path d="M14.5 5.5A5.5 5.5 0 0 0 4.8 8.2M5.5 14.5A5.5 5.5 0 0 0 15.2 11.8" /><path d="M4 5.5l1 3 3-1M16 14.5l-1-3-3 1" /></svg>,
+  pencil:(p) => <svg viewBox="0 0 20 20" {...p}><path d="M13.5 4.5l2 2L7 15l-2.6.6L5 13z" /></svg>,
+  trash: (p) => <svg viewBox="0 0 20 20" {...p}><path d="M4.5 6h11M8 6V4.5h4V6M6 6l.6 9.5h6.8L14 6" /></svg>,
+  x:     (p) => <svg viewBox="0 0 20 20" {...p}><path d="M5 5l10 10M15 5L5 15" /></svg>,
+  dot:   (p) => <svg viewBox="0 0 20 20" {...p}><circle cx="10" cy="10" r="3.2" /></svg>,
+  eye:   (p) => <svg viewBox="0 0 20 20" {...p}><path d="M2.5 10S5.5 5 10 5s7.5 5 7.5 5-3 5-7.5 5-7.5-5-7.5-5z" /><circle cx="10" cy="10" r="2.2" /></svg>,
+  eyeoff:(p) => <svg viewBox="0 0 20 20" {...p}><path d="M4 4l12 12M8.2 8.3a2.2 2.2 0 0 0 3.1 3.1M6.5 6.1C4.2 7.3 2.5 10 2.5 10s3 5 7.5 5c1.2 0 2.3-.3 3.3-.8M13.2 12.6C15.3 11.4 17.5 10 17.5 10S14.5 5 10 5" /></svg>,
+};
+function Icon({ name, size = 18, stroke = 1.7, fill = false, ...rest }) {
+  const El = Ic[name];
+  return <El width={size} height={size} fill="none" stroke="currentColor"
+    strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" {...rest} />;
+}
+
+const PRIORITY = {
+  high:   { label: "High",   color: "#E04860" },
+  medium: { label: "Medium", color: "#E0902F" },
+  low:    { label: "Low",    color: "#7C8694" },
+};
+const STATUS = {
+  "not-started": { label: "Not started", color: "var(--text-3)" },
+  "in-progress": { label: "In progress", color: "var(--accent)" },
+  "done":        { label: "Done",        color: "#1F9E6E" },
+};
+const POST_KEYS = [["initial", "Initial post"], ["reply1", "Reply 1"], ["reply2", "Reply 2"]];
+function postCount(a) {
+  return a.posts ? (a.posts.initial ? 1 : 0) + (a.posts.reply1 ? 1 : 0) + (a.posts.reply2 ? 1 : 0) : 0;
+}
+
+function CheckCircle({ done, color, onClick, size = 22 }) {
+  return (
+    <button className="hw-check" onClick={onClick} aria-label="toggle complete"
+      style={{ width: size, height: size,
+        borderColor: done ? "#1F9E6E" : color,
+        background: done ? "#1F9E6E" : "transparent" }}>
+      {done && <Icon name="check" size={size - 7} stroke={2.4} style={{ color: "#fff" }} />}
+    </button>
+  );
+}
+
+/* detail panel — includes what-if grade target feature */
+function Detail({ a, course, onStatus, onEdit, onDelete, onPosts, allItems = [] }) {
+  /* what-if grade target */
+  let whatIfNode = null;
+  const courseItems = allItems.filter((x) => x.course === a.course);
+  if (courseItems.length > 0) {
+    const totalPts = courseItems.reduce((s, x) => s + (x.points.total || 0), 0);
+    const graded = courseItems.filter((x) => x.points && x.points.earned != null);
+    if (graded.length > 0 && totalPts > 0) {
+      const earnedPts = graded.reduce((s, x) => s + x.points.earned, 0);
+      const gradedTotPts = graded.reduce((s, x) => s + x.points.total, 0);
+      const remainingPts = totalPts - gradedTotPts;
+      if (remainingPts > 0) {
+        const neededA = (0.90 * totalPts - earnedPts) / remainingPts * 100;
+        let msg;
+        if (neededA <= 100) {
+          msg = `Need ${Math.max(0, Math.ceil(neededA))}% on remaining for an A (90%)`;
+        } else {
+          const neededB = (0.80 * totalPts - earnedPts) / remainingPts * 100;
+          msg = `A out of reach — ${Math.min(100, Math.max(0, Math.ceil(neededB)))}% needed for a B (80%)`;
+        }
+        whatIfNode = (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', gridColumn: '1 / -1' }}>
+            <span className="hw-dt-k">What-if target</span>
+            <span className="hw-dt-v">{msg}</span>
+          </div>
+        );
+      }
+    }
+  }
+
+  return (
+    <div className="hw-detail">
+      {a.notes && <p className="hw-detail-notes">{a.notes}</p>}
+      <div className="hw-detail-grid">
+        <div><span className="hw-dt-k">Course</span><span className="hw-dt-v">{course.name}</span></div>
+        <div><span className="hw-dt-k">Type</span><span className="hw-dt-v">{HW.TYPE_LABEL[a.type] || "Assignment"}</span></div>
+        <div><span className="hw-dt-k">Est. time</span><span className="hw-dt-v">{HW.fmtEst(a.est)}</span></div>
+        <div><span className="hw-dt-k">Priority</span>
+          <span className="hw-dt-v" style={{ color: PRIORITY[a.priority].color }}>
+            {PRIORITY[a.priority].label}</span></div>
+        <div><span className="hw-dt-k">Points</span>
+          <span className="hw-dt-v">{a.points.total ? `${a.points.earned ?? "—"} / ${a.points.total}` : "Ungraded"}</span></div>
+        {whatIfNode}
+      </div>
+
+      {a.attachments && a.attachments.length > 0 && (
+        <div className="hw-attach">
+          {a.attachments.map((f) => (
+            <span className="hw-chip" key={f}><Icon name="clip" size={13} />{f}</span>
+          ))}
+        </div>
+      )}
+
+      {a.type === "discussion" && a.posts && (
+        <div className="hw-posts">
+          <div className="hw-posts-h">
+            <span>Discussion posts</span>
+            <span className="hw-posts-count">{postCount(a)}/3 done</span>
+          </div>
+          {POST_KEYS.map(([k, label]) => (
+            <button key={k} className={"hw-post" + (a.posts[k] ? " on" : "")}
+              onClick={() => onPosts(a.id, k)}>
+              <span className="hw-post-box">{a.posts[k] && <Icon name="check" size={11} stroke={2.8} />}</span>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="hw-status-seg">
+        {Object.keys(STATUS).map((k) => (
+          <button key={k} className={"hw-seg-btn" + (a.status === k ? " on" : "")}
+            onClick={() => onStatus(a.id, k)}>
+            {STATUS[k].label}
+          </button>
+        ))}
+      </div>
+
+      <div className="hw-detail-actions">
+        <button className="hw-tbtn" onClick={() => onEdit(a)}><Icon name="pencil" size={14} />Edit</button>
+        <button className="hw-tbtn danger" onClick={() => onDelete(a.id)}><Icon name="trash" size={14} />Delete</button>
+      </div>
+    </div>
+  );
+}
+
+function Row({ a, expanded, onToggleExpand, onComplete, ...rest }) {
+  const course = HW.course(a.course);
+  const done = a.status === "done";
+  const overdue = HW.dayDiff(a.due) < 0 && !done;
+  const open = expanded === a.id;
+  return (
+    <div className={"hw-row" + (open ? " expanded" : "")}>
+      <div className="hw-row-main" onClick={() => onToggleExpand(a.id)}>
+        <span className="hw-course-bar" style={{ background: HW.cc(a.course) }} />
+        <CheckCircle done={done} color={HW.cc(a.course)}
+          onClick={(e) => { e.stopPropagation(); onComplete(a.id); }} />
+        <div className="hw-row-body">
+          <div className={"hw-row-title" + (done ? " done" : "")}>{a.title}</div>
+          <div className="hw-row-meta">
+            <span className="hw-course-tag" style={{ color: HW.cc(a.course) }}>{course.short}</span>
+            <span className={"hw-due" + (overdue ? " overdue" : "")}>
+              <Icon name="clock" size={12} />{HW.dueLabel(a.due)} &middot; {HW.timeLabel(a.due)}</span>
+            {a.type === "discussion" && a.status !== "done" &&
+              <span className="hw-posts-pill">{postCount(a)}/3 posts</span>}
+            {a.priority === "high" && !done &&
+              <span className="hw-pri" style={{ color: PRIORITY.high.color }}>
+                <Icon name="flag" size={12} fill />High</span>}
+          </div>
+        </div>
+        {a.status === "in-progress" && <span className="hw-ip-dot" title="In progress" />}
+        <Icon name="chev" size={16} className={"hw-row-chev" + (open ? " open" : "")} />
+      </div>
+      {open && <Detail a={a} course={course} {...rest} />}
+    </div>
+  );
+}
+
+function CompactRow({ a, expanded, onToggleExpand, onComplete, ...rest }) {
+  const course = HW.course(a.course);
+  const done = a.status === "done";
+  const overdue = HW.dayDiff(a.due) < 0 && !done;
+  const open = expanded === a.id;
+  return (
+    <div className={"hw-cwrap" + (open ? " expanded" : "")}>
+      <div className="hw-crow" onClick={() => onToggleExpand(a.id)}>
+        <CheckCircle done={done} color={HW.cc(a.course)} size={18}
+          onClick={(e) => { e.stopPropagation(); onComplete(a.id); }} />
+        <span className="hw-cdot" style={{ background: HW.cc(a.course) }} />
+        <span className={"hw-ctitle" + (done ? " done" : "")}>{a.title}</span>
+        {a.type === "discussion" && a.status !== "done" &&
+          <span className="hw-cposts">{postCount(a)}/3</span>}
+        <span className={"hw-ctime" + (overdue ? " overdue" : "")}>{HW.timeLabel(a.due)}</span>
+        <Icon name="chev" size={14} className={"hw-row-chev" + (open ? " open" : "")} />
+      </div>
+      {open && <Detail a={a} course={course} {...rest} />}
+    </div>
+  );
+}
+
+function AgendaView({ items, ...handlers }) {
+  const groups = {};
+  items.forEach((a) => { (groups[HW.groupKey(a.due)] ||= []).push(a); });
+  return (
+    <div className="hw-list">
+      {HW.GROUP_ORDER.filter((k) => groups[k]).map((k) => (
+        <div className="hw-group" key={k}>
+          <div className={"hw-group-h" + (k === "overdue" ? " overdue" : "")}>
+            {HW.GROUP_LABEL[k]}<span className="hw-group-n">{groups[k].length}</span>
+          </div>
+          {groups[k].map((a) => <Row key={a.id} a={a} {...handlers} />)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CompactView({ items, ...handlers }) {
+  const groups = {};
+  items.forEach((a) => { (groups[HW.groupKey(a.due)] ||= []).push(a); });
+  return (
+    <div className="hw-list compact">
+      {HW.GROUP_ORDER.filter((k) => groups[k]).map((k) => (
+        <div className="hw-group" key={k}>
+          <div className={"hw-group-h" + (k === "overdue" ? " overdue" : "")}>
+            {HW.GROUP_LABEL[k]}<span className="hw-group-n">{groups[k].length}</span>
+          </div>
+          {groups[k].map((a) => <CompactRow key={a.id} a={a} {...handlers} />)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BoardView({ items, onComplete, onEdit }) {
+  const cols = [
+    { k: "not-started", label: "Not started" },
+    { k: "in-progress", label: "In progress" },
+    { k: "done", label: "Done" },
+  ];
+  return (
+    <div className="hw-board">
+      {cols.map((c) => {
+        const list = items.filter((a) => a.status === c.k);
+        return (
+          <div className="hw-bcol" key={c.k}>
+            <div className="hw-bcol-h">
+              <span className="hw-bdot" style={{ background: STATUS[c.k].color }} />
+              {c.label}<span className="hw-group-n">{list.length}</span>
+            </div>
+            <div className="hw-bcol-body">
+              {list.map((a) => {
+                const course = HW.course(a.course);
+                return (
+                  <div className="hw-bcard" key={a.id} onClick={() => onEdit(a)}
+                    style={{ borderTopColor: HW.cc(a.course) }}>
+                    <div className="hw-bcard-title">{a.title}</div>
+                    <div className="hw-bcard-meta">
+                      <span style={{ color: HW.cc(a.course) }}>{course.short}</span>
+                      <span>{HW.dueLabel(a.due)}</span>
+                    </div>
+                    <div className="hw-bcard-foot">
+                      <CheckCircle done={a.status === "done"} color={HW.cc(a.course)} size={16}
+                        onClick={(e) => { e.stopPropagation(); onComplete(a.id); }} />
+                      {a.priority === "high" && a.status !== "done" &&
+                        <Icon name="flag" size={12} fill style={{ color: PRIORITY.high.color }} />}
+                    </div>
+                  </div>
+                );
+              })}
+              {list.length === 0 && <div className="hw-bempty">Nothing here</div>}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function CalendarView({ items, onComplete, onEdit, onToggleExpand, expanded, ...rest }) {
+  const dayKey = (d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const [view, setView] = useState(() => new Date(HW.NOW.getFullYear(), HW.NOW.getMonth(), 1));
+  const [sel, setSel] = useState(() => dayKey(HW.NOW));
+  const byDay = {};
+  items.forEach((a) => { const d = new Date(a.due); (byDay[dayKey(d)] ||= []).push(a); });
+  const y = view.getFullYear(), m = view.getMonth();
+  const startDow = new Date(y, m, 1).getDay();
+  const todayKey = dayKey(HW.NOW);
+  const cells = [];
+  for (let i = 0; i < 42; i++) cells.push(new Date(y, m, 1 - startDow + i));
+  const monthLabel = view.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  const step = (n) => setView(new Date(y, m + n, 1));
+  const selDate = (() => { if (!sel) return new Date(); const [yy, mm, dd] = sel.split("-").map(Number); return new Date(yy, mm, dd); })();
+  const selList = (byDay[sel] || []).slice().sort((a, b) => new Date(a.due) - new Date(b.due));
+  const selLabel = selDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+  return (
+    <div className="hw-cal">
+      <div className="hw-cal-nav">
+        <button className="hw-iconbtn sm" onClick={() => step(-1)}><Icon name="chevL" size={16} /></button>
+        <div className="hw-cal-month">{monthLabel}</div>
+        <button className="hw-iconbtn sm" onClick={() => step(1)}><Icon name="chevR" size={16} /></button>
+        <button className="hw-cal-today" onClick={() => {
+          setView(new Date(HW.NOW.getFullYear(), HW.NOW.getMonth(), 1));
+          setSel(todayKey);
+        }}>Today</button>
+      </div>
+      <div className="hw-cal-dow">
+        {["S","M","T","W","T","F","S"].map((d, i) => <span key={i}>{d}</span>)}
+      </div>
+      {selList.length > 0 && <div className="hw-cal-day">
+        <div className="hw-cal-day-h">
+          <span style={{flex:1}}>{selLabel}</span>
+          <span className="hw-group-n">{selList.length}</span>
+          <button className="hw-iconbtn sm" style={{marginLeft:4}} onClick={() => setSel("")} title="Close"><Icon name="x" size={14} /></button>
+        </div>
+        {selList.map((a) => {
+              const course = HW.course(a.course);
+              const done = a.status === "done";
+              const isOpen = expanded === a.id;
+              return (
+                <div className={"hw-cwrap" + (isOpen ? " expanded" : "")} key={a.id}>
+                  <div className="hw-crow" onClick={() => onToggleExpand(a.id)}>
+                    <CheckCircle done={done} color={HW.cc(a.course)} size={18}
+                      onClick={(e) => { e.stopPropagation(); onComplete(a.id); }} />
+                    <span className="hw-cdot" style={{ background: HW.cc(a.course) }} />
+                    <span className={"hw-ctitle" + (done ? " done" : "")}>{a.title}</span>
+                    <span className={"hw-ctime" + (HW.dayDiff(a.due) < 0 && !done ? " overdue" : "")}>{HW.timeLabel(a.due)}</span>
+                    <Icon name="chev" size={14} className={"hw-row-chev" + (isOpen ? " open" : "")} />
+                  </div>
+                  {isOpen && <Detail a={a} course={course} onEdit={onEdit} allItems={rest.allItems || items} {...rest} />}
+                </div>
+              );
+            })}
+      </div>}
+      <div className="hw-cal-grid">
+        {cells.map((d, i) => {
+          const k = dayKey(d);
+          const inMonth = d.getMonth() === m;
+          const list = byDay[k] || [];
+          const isToday = k === todayKey;
+          const isSel = k === sel;
+          const courses = [...new Set(list.map((a) => a.course))].slice(0, 3);
+          return (
+            <button key={i} onClick={() => setSel(k)}
+              className={"hw-cal-cell" + (inMonth ? "" : " out") + (isSel ? " sel" : "") + (isToday ? " today" : "")}>
+              <span className="hw-cal-num">{d.getDate()}</span>
+              {list.length > 0 && (
+                <span className="hw-cal-dots">
+                  {courses.map((cid) => <span key={cid} className="hw-cal-dot" style={{ background: HW.cc(cid) }} />)}
+                  {list.length > courses.length && <span className="hw-cal-more">+{list.length - courses.length}</span>}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      
+    </div>
+  );
+}
+
+function CompletedView({ items, allItems = [], onComplete }) {
+  const byCourse = {};
+  items.forEach((a) => { (byCourse[a.course] ||= []).push(a); });
+  return (
+    <div className="hw-list">
+      {Object.keys(byCourse).map((cid) => {
+        const c = HW.course(cid);
+        const list = byCourse[cid];
+        const earned = list.reduce((s, a) => s + (a.points.earned || 0), 0);
+        const gradedTot = list.reduce((s, a) => s + (a.points.earned != null ? a.points.total : 0), 0);
+        const actual = gradedTot ? Math.round((earned / gradedTot) * 100) : null;
+        const courseAll = allItems.filter((x) => x.course === cid);
+        const totalPts = courseAll.reduce((s, x) => s + (x.points.total || 0), 0);
+        const avg = gradedTot ? earned / gradedTot : null;
+        const remaining = totalPts - gradedTot;
+        const projected = (avg == null || totalPts === 0)
+          ? null : Math.round(((earned + avg * remaining) / totalPts) * 100);
+        return (
+          <div className="hw-group" key={cid}>
+            <div className="hw-group-h">
+              <span className="hw-cdot" style={{ background: HW.cc(cid) }} />{c.name}
+              <span className="hw-grades">
+                {actual != null && <span className="hw-grade-pill">{actual}%</span>}
+                {projected != null && <span className="hw-grade-pill proj">proj {projected}%</span>}
+              </span>
+            </div>
+            {list.map((a) => (
+              <div className="hw-crow done-row" key={a.id}>
+                <CheckCircle done color={HW.cc(cid)} size={18} onClick={() => onComplete(a.id)} />
+                <span className="hw-ctitle done">{a.title}</span>
+                <span className="hw-pts">{a.points.total ? `${a.points.earned ?? "—"}/${a.points.total}` : "—"}</span>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* forms with saving state */
+function AssignmentForm({ initial, onSave, onClose }) {
+  const [f, setF] = useState(initial || {
+    title: "", course: (Object.keys(HW.COURSES)[0] || ""), type: "assignment",
+    dueDate: "", dueTime: "23:59",
+    priority: "medium", status: "not-started", est: 60, pts: "", earned: "", notes: "",
+  });
+  const [saving, setSaving] = useState(false);
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  const valid = f.title.trim() && f.dueDate && f.course;
+  const handleSave = async () => {
+    setSaving(true);
+    try { await onSave(f); } catch (e) { setSaving(false); }
+  };
+  return (
+    <div className="hw-modal-back" onClick={onClose}>
+      <div className="hw-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="hw-modal-h">
+          <span>{initial ? "Edit assignment" : "New assignment"}</span>
+          <button className="hw-iconbtn" onClick={onClose}><Icon name="x" size={16} /></button>
+        </div>
+        <label className="hw-field"><span>Title</span>
+          <input autoFocus value={f.title} onChange={set("title")} placeholder="e.g. Problem Set 10" /></label>
+        <div className="hw-field-row">
+          <label className="hw-field"><span>Course</span>
+            <select value={f.course} onChange={set("course")}>
+              {Object.values(HW.COURSES).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select></label>
+          <label className="hw-field"><span>Type</span>
+            <select value={f.type} onChange={set("type")}>
+              {HW.ASSIGNMENT_TYPES.map((tp) => <option key={tp} value={tp}>{HW.TYPE_LABEL[tp]}</option>)}
+            </select></label>
+        </div>
+        <div className="hw-field-row">
+          <label className="hw-field"><span>Due date</span>
+            <input type="date" value={f.dueDate} onChange={set("dueDate")} /></label>
+          <label className="hw-field"><span>Time</span>
+            <input type="time" value={f.dueTime} onChange={set("dueTime")} /></label>
+        </div>
+        <div className="hw-field-row">
+          <label className="hw-field"><span>Est. minutes</span>
+            <input type="number" min="5" step="5" value={f.est} onChange={set("est")} /></label>
+          <label className="hw-field"><span>Points</span>
+            <input type="number" min="0" step="1" value={f.pts} onChange={set("pts")} placeholder="e.g. 20" /></label>
+        </div>
+        <div className="hw-field-row">
+          <label className="hw-field"><span>Priority</span>
+            <select value={f.priority} onChange={set("priority")}>
+              <option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+            </select></label>
+          <label className="hw-field"><span>Status</span>
+            <select value={f.status} onChange={set("status")}>
+              <option value="not-started">Not started</option>
+              <option value="in-progress">In progress</option>
+              <option value="done">Done</option>
+            </select></label>
+        </div>
+        <label className="hw-field">
+          <span>Grade earned <span className="hw-field-opt">(optional)</span></span>
+          <input type="number" min="0" step="1" value={f.earned} onChange={set("earned")} placeholder="Leave blank if ungraded" /></label>
+        <label className="hw-field"><span>Notes</span>
+          <textarea rows="2" value={f.notes} onChange={set("notes")} placeholder="Optional details&hellip;" /></label>
+        <div className="hw-modal-foot">
+          <button className="hw-btn ghost" onClick={onClose}>Cancel</button>
+          <button className="hw-btn primary" disabled={!valid || saving} onClick={handleSave}>
+            {saving ? "Saving…" : (initial ? "Save changes" : "Add assignment")}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CourseForm({ initial, terms, defaultTerm, onSave, onClose }) {
+  const [f, setF] = useState(initial || {
+    name: "", short: "", color: "#2F6FE0", term: defaultTerm || (terms[0] && terms[0].id) || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  const valid = f.name.trim() && f.short.trim() && f.term;
+  const handleSave = async () => {
+    setSaving(true);
+    try { await onSave(f); } catch (e) { setSaving(false); }
+  };
+  return (
+    <div className="hw-modal-back" onClick={onClose}>
+      <div className="hw-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="hw-modal-h">
+          <span>{initial ? "Edit course" : "New course"}</span>
+          <button className="hw-iconbtn" onClick={onClose}><Icon name="x" size={16} /></button>
+        </div>
+        <label className="hw-field"><span>Course name</span>
+          <input autoFocus value={f.name} onChange={set("name")} placeholder="e.g. Ethics in Cybersecurity" /></label>
+        <div className="hw-field-row">
+          <label className="hw-field"><span>Short code</span>
+            <input value={f.short} onChange={set("short")} placeholder="e.g. IT400" /></label>
+          <label className="hw-field"><span>Color</span>
+            <span className="hw-colorpick">
+              <input type="color" value={f.color} onChange={set("color")} />
+              <span className="hw-colorpick-sw" style={{ background: f.color }} />
+              <span className="hw-colorpick-hex">{f.color.toUpperCase()}</span>
+            </span></label>
+        </div>
+        <label className="hw-field"><span>Term</span>
+          <select value={f.term} onChange={set("term")}>
+            {terms.map((tm) => <option key={tm.id} value={tm.id}>{tm.name}</option>)}
+          </select></label>
+        <div className="hw-modal-foot">
+          <button className="hw-btn ghost" onClick={onClose}>Cancel</button>
+          <button className="hw-btn primary" disabled={!valid || saving} onClick={handleSave}>
+            {saving ? "Saving…" : (initial ? "Save changes" : "Add course")}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TermForm({ onSave, onClose }) {
+  const [f, setF] = useState({ name: "", start: "", end: "" });
+  const [saving, setSaving] = useState(false);
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  const valid = f.name.trim() && f.start && f.end;
+  const handleSave = async () => {
+    setSaving(true);
+    try { await onSave(f); } catch (e) { setSaving(false); }
+  };
+  return (
+    <div className="hw-modal-back" onClick={onClose}>
+      <div className="hw-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="hw-modal-h">
+          <span>New term</span>
+          <button className="hw-iconbtn" onClick={onClose}><Icon name="x" size={16} /></button>
+        </div>
+        <label className="hw-field"><span>Term name</span>
+          <input autoFocus value={f.name} onChange={set("name")} placeholder="e.g. Summer 2026" /></label>
+        <div className="hw-field-row">
+          <label className="hw-field"><span>Start date</span>
+            <input type="date" value={f.start} onChange={set("start")} /></label>
+          <label className="hw-field"><span>End date</span>
+            <input type="date" value={f.end} onChange={set("end")} /></label>
+        </div>
+        <div className="hw-modal-foot">
+          <button className="hw-btn ghost" onClick={onClose}>Cancel</button>
+          <button className="hw-btn primary" disabled={!valid || saving} onClick={handleSave}>
+            {saving ? "Saving…" : "Add term"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, {
+  Icon, AgendaView, CompactView, BoardView, CalendarView, CompletedView,
+  AssignmentForm, CourseForm, TermForm, CheckCircle, PRIORITY, STATUS,
+});
+  </script>
+
+  <script type="text/babel">
+const { useState: useS, useMemo, useEffect, useCallback } = React;
+
+/* ── API helpers ───────────────────────────────────────────────────────────── */
+function apiBase() { return window.HW_API_BASE || "http://10.0.0.237:8000"; }
+
+async function apiFetch(path, opts = {}) {
+  const { body, ...rest } = opts;
+  const res = await fetch(apiBase() + path, {
+    headers: { "Content-Type": "application/json" },
+    ...rest,
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+function mapTerm(t) {
+  return { id: t.id, name: t.name, start: t.start_date, end: t.end_date, archived: !!t.archived };
+}
+function mapCourse(c) {
+  return { id: c.id, name: c.name, short: c.short, color: c.color, term: c.term_id };
+}
+function mapAssignment(a) {
+  return {
+    id: a.id, title: a.title, course: a.course_id, type: a.type, due: a.due,
+    priority: a.priority, status: a.status, est: a.est, notes: a.notes || "",
+    points: { earned: a.points_earned, total: a.points_total || 0 },
+    attachments: a.attachments || [],
+    ...(a.type === "discussion" ? {
+      posts: { initial: !!a.post_initial, reply1: !!a.post_reply1, reply2: !!a.post_reply2 }
+    } : {}),
+  };
+}
+
+/* ── Tweak defaults ────────────────────────────────────────────────────────── */
+const TWEAK_DEFAULTS = {
+  "theme": "light", "accent": "#0067C0", "density": "regular",
+  "layout": "agenda", "font": "Segoe UI Variable", "shape": "tall",
+  "surface": "acrylic", "scene": "bloom", "sceneColor": "#2A5BD0",
+  "uiScale": 100, "courses": {}, "alwaysOnTop": false,
+};
+
+const ACCENTS = ["#0067C0","#6750A4","#1F9E6E","#D6336C","#E0902F","#0E7C86","#C2410C","#111827","#E91E8E","#F472B6","#FB7185","#D4A054"];
+const FONTS = {
+  "Segoe UI Variable": "'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif",
+  "Inter": "'Inter', system-ui, sans-serif",
+  "Nunito Sans": "'Nunito Sans', system-ui, sans-serif",
+  "Source Sans 3": "'Source Sans 3', system-ui, sans-serif",
+  "Lato": "'Lato', system-ui, sans-serif",
+  "Poppins": "'Poppins', system-ui, sans-serif",
+  "IBM Plex Sans": "'IBM Plex Sans', system-ui, sans-serif",
+  "Space Grotesk": "'Space Grotesk', system-ui, sans-serif",
+  "Quicksand": "'Quicksand', system-ui, sans-serif",
+  "Comfortaa": "'Comfortaa', system-ui, sans-serif",
+  "Playfair Display": "'Playfair Display', Georgia, serif",
+  "Dancing Script": "'Dancing Script', 'Segoe Script', cursive",
+  "Georgia": "Georgia, 'Times New Roman', serif",
+  "Lora": "'Lora', Georgia, serif",
+  "JetBrains Mono": "'JetBrains Mono', 'Fira Code', monospace",
+  "Fira Code": "'Fira Code', 'JetBrains Mono', monospace",
+  "Share Tech Mono": "'Share Tech Mono', monospace",
+};
+const PRESETS = [
+  { name: "Fluent",   theme: "light", accent: "#0067C0", surface: "acrylic", scene: "bloom",    sceneColor: "#2A5BD0", grad: ["#3a6db5","#1d3563"] },
+  { name: "Midnight", theme: "dark",  accent: "#4F8BFF", surface: "acrylic", scene: "graphite", sceneColor: "#2A2C31", grad: ["#3d4047","#17181c"] },
+  { name: "Sunset",   theme: "light", accent: "#E0590C", surface: "tinted",  scene: "dusk",     sceneColor: "#D76A8A", grad: ["#f3a26b","#8a4fa0"] },
+  { name: "Forest",   theme: "dark",  accent: "#1F9E6E", surface: "tinted",  scene: "aurora",   sceneColor: "#14635A", grad: ["#1f8f74","#0b2a30"] },
+  { name: "Mono",     theme: "light", accent: "#374151", surface: "solid",   scene: "paper",    sceneColor: "#DDE2EC", grad: ["#eef0f6","#ccd2e0"] },
+  { name: "Grape",    theme: "dark",  accent: "#A879F0", surface: "acrylic", scene: "dusk",     sceneColor: "#7A4FA0", grad: ["#8a4fa0","#46356e"] },
+  { name: "Sarah",    theme: "light", accent: "#E91E8E", surface: "tinted",  scene: "cheetah",  sceneColor: "#D4A854", grad: ["#F2C14E","#E91E8E"] },
+  { name: "Tactical", theme: "dark",  accent: "#00FF41", surface: "solid",   scene: "tactical", sceneColor: "#0d1117", grad: ["#00FF41","#0d1117"] },
+  { name: "Joker",    theme: "dark",  accent: "#9B30FF", surface: "acrylic", scene: "joker",    sceneColor: "#2d1b4e", grad: ["#9B30FF","#1a0a2e"] },
+  { name: "Hacker",   theme: "dark",  accent: "#00FF41", surface: "solid",   scene: "hacker",   sceneColor: "#020a02", grad: ["#00FF41","#020a02"] },
+];
+
+function StatChip({ value, label, sub }) {
+  return (
+    <div className="hw-stat">
+      <div className="hw-stat-val">{value}{sub && <span className="hw-stat-sub">{sub}</span>}</div>
+      <div className="hw-stat-label">{label}</div>
+    </div>
+  );
+}
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [items, setItems] = useS([]);
+  const [courses, setCourses] = useS({});
+  const [terms, setTerms] = useS([]);
+  const [activeTerm, setActiveTerm] = useS(null);
+  const [tab, setTab] = useS("upcoming");
+  const [course, setCourse] = useS("all");
+  const [expanded, setExpanded] = useS(null);
+  const [form, setForm] = useS(null);
+  const [courseForm, setCourseForm] = useS(null);
+  const [termForm, setTermForm] = useS(false);
+  const [courseOpen, setCourseOpen] = useS(false);
+  const [termOpen, setTermOpen] = useS(false);
+  const [notifOpen, setNotifOpen] = useS(false);
+  const [syncing, setSyncing] = useS(false);
+  const [syncMsg, setSyncMsg] = useS(null);
+  const [netError, setNetError] = useS(null);
+
+  HW.COURSES = courses;
+
+  /* ── data loading ── */
+  const loadAll = useCallback(async () => {
+    try {
+      const [termsRaw, coursesRaw, assignmentsRaw] = await Promise.all([
+        apiFetch("/api/v1/terms"),
+        apiFetch("/api/v1/courses"),
+        apiFetch("/api/v1/assignments"),
+      ]);
+      const termsArr = termsRaw.map(mapTerm);
+      const coursesObj = {};
+      coursesRaw.forEach((c) => { coursesObj[c.id] = mapCourse(c); });
+      setTerms(termsArr);
+      setCourses(coursesObj);
+      HW.COURSES = coursesObj;
+      setItems(assignmentsRaw.map(mapAssignment));
+      setNetError(null);
+    } catch (e) {
+      setNetError("Can't reach the tracker server — retrying");
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAll();
+    const poll = setInterval(loadAll, 15000);
+    return () => clearInterval(poll);
+  }, []);
+
+  useEffect(() => {
+    if (!activeTerm || !terms.find((tm) => tm.id === activeTerm && !tm.archived)) {
+      const cand = terms.filter((tm) => !tm.archived);
+      setActiveTerm(cand.length ? cand[cand.length - 1].id : null);
+    }
+  }, [terms]);
+
+  useEffect(() => { setCourse("all"); }, [activeTerm]);
+
+  const activeTermObj = terms.find((tm) => tm.id === activeTerm) || null;
+  const termCourses = useMemo(
+    () => Object.values(courses).filter((c) => c.term === activeTerm),
+    [courses, activeTerm]);
+  const noCourses = termCourses.length === 0;
+
+  const termItems = useMemo(
+    () => items.filter((a) => { const c = courses[a.course]; return c && c.term === activeTerm; }),
+    [items, courses, activeTerm]);
+  const active = useMemo(() => termItems.filter((a) => a.status !== "done"), [termItems]);
+  const completed = useMemo(() => termItems.filter((a) => a.status === "done"), [termItems]);
+
+  const filtered = useMemo(() => {
+    const base = tab === "done" ? completed : active;
+    const valid = course !== "all" && termCourses.some((c) => c.id === course);
+    const byCourse = valid ? base.filter((a) => a.course === course) : base;
+    return [...byCourse].sort((a, b) => new Date(a.due) - new Date(b.due));
+  }, [termItems, tab, course, active, completed, termCourses]);
+
+  const dueToday = active.filter((a) => HW.dayDiff(a.due) === 0).length;
+  const thisWeek = active.filter((a) => HW.dayDiff(a.due) >= 0 && HW.dayDiff(a.due) < 7).length;
+  const urgent = items.filter((a) => a.status !== "done" && HW.dayDiff(a.due) <= 1);
+  const overdue = active.filter((a) => HW.dayDiff(a.due) < 0).length;
+
+  const { gradePct, projected } = useMemo(() => {
+    const graded = termItems.filter((a) => a.points && a.points.earned != null);
+    const earned = graded.reduce((s, a) => s + a.points.earned, 0);
+    const gradedTot = graded.reduce((s, a) => s + a.points.total, 0);
+    const totalPts = termItems.reduce((s, a) => s + (a.points.total || 0), 0);
+    const avg = gradedTot ? earned / gradedTot : null;
+    const remaining = totalPts - gradedTot;
+    return {
+      gradePct: gradedTot ? Math.round((earned / gradedTot) * 100) : null,
+      projected: (avg == null || totalPts === 0) ? null
+        : Math.round(((earned + avg * remaining) / totalPts) * 100),
+    };
+  }, [termItems]);
+
+  /* ── assignment handlers ── */
+  const onComplete = async (id) => {
+    const a = items.find((x) => x.id === id);
+    if (!a) return;
+    let optimistic;
+    if (a.type === "discussion" && a.posts) {
+      optimistic = a.status === "done"
+        ? { ...a, status: "in-progress", posts: { initial: true, reply1: true, reply2: false } }
+        : { ...a, status: "done", posts: { initial: true, reply1: true, reply2: true } };
+    } else {
+      optimistic = { ...a, status: a.status === "done" ? "in-progress" : "done" };
+    }
+    setItems((xs) => xs.map((x) => x.id === id ? optimistic : x));
+    try {
+      if (a.type === "discussion" && a.posts) {
+        const body = {
+          status: optimistic.status,
+          post_initial: optimistic.posts.initial ? 1 : 0,
+          post_reply1: optimistic.posts.reply1 ? 1 : 0,
+          post_reply2: optimistic.posts.reply2 ? 1 : 0,
+        };
+        await apiFetch(`/api/v1/assignments/${id}`, { method: "PUT", body });
+      } else {
+        await apiFetch(`/api/v1/assignments/${id}/status`, { method: "PATCH", body: { status: optimistic.status } });
+      }
+      const updated = await apiFetch("/api/v1/assignments");
+      setItems(updated.map(mapAssignment));
+      setNetError(null);
+    } catch (e) {
+      setItems((xs) => xs.map((x) => x.id === id ? a : x));
+      setNetError("Can't reach the tracker server — retrying");
+    }
+  };
+
+  const onPosts = async (id, key) => {
+    const a = items.find((x) => x.id === id);
+    if (!a || !a.posts) return;
+    const newPosts = { ...a.posts, [key]: !a.posts[key] };
+    const n = (newPosts.initial ? 1 : 0) + (newPosts.reply1 ? 1 : 0) + (newPosts.reply2 ? 1 : 0);
+    const newStatus = n === 3 ? "done" : n === 0 ? "not-started" : "in-progress";
+    setItems((xs) => xs.map((x) => x.id === id ? { ...x, posts: newPosts, status: newStatus } : x));
+    try {
+      await apiFetch(`/api/v1/assignments/${id}/posts`, { method: "PATCH", body: { post: key } });
+      const updated = await apiFetch("/api/v1/assignments");
+      setItems(updated.map(mapAssignment));
+      setNetError(null);
+    } catch (e) {
+      setItems((xs) => xs.map((x) => x.id === id ? a : x));
+      setNetError("Can't reach the tracker server — retrying");
+    }
+  };
+
+  const onStatus = async (id, status) => {
+    const a = items.find((x) => x.id === id);
+    if (!a) return;
+    setItems((xs) => xs.map((x) => x.id === id ? { ...x, status } : x));
+    try {
+      await apiFetch(`/api/v1/assignments/${id}/status`, { method: "PATCH", body: { status } });
+      const updated = await apiFetch("/api/v1/assignments");
+      setItems(updated.map(mapAssignment));
+      setNetError(null);
+    } catch (e) {
+      setItems((xs) => xs.map((x) => x.id === id ? a : x));
+      setNetError("Can't reach the tracker server — retrying");
+    }
+  };
+
+  const onToggleExpand = (id) => setExpanded((e) => e === id ? null : id);
+
+  const onDelete = async (id) => {
+    const a = items.find((x) => x.id === id);
+    setItems((xs) => xs.filter((x) => x.id !== id));
+    setExpanded(null);
+    try {
+      await apiFetch(`/api/v1/assignments/${id}`, { method: "DELETE" });
+      setNetError(null);
+    } catch (e) {
+      if (a) setItems((xs) => [...xs, a]);
+      setNetError("Can't reach the tracker server — retrying");
+    }
+  };
+
+  const onEdit = (a) => setForm({
+    ...a, dueDate: a.due.slice(0, 10),
+    dueTime: new Date(a.due).toTimeString().slice(0, 5),
+    pts: a.points.total || "", earned: a.points.earned == null ? "" : a.points.earned,
+    type: a.type || "assignment",
+  });
+
+  const onSave = async (f) => {
+    const due = new Date(`${f.dueDate}T${f.dueTime || "23:59"}`).toISOString();
+    const body = {
+      title: f.title.trim(), course_id: f.course, type: f.type || "assignment", due,
+      priority: f.priority, status: f.status, est: Number(f.est) || 60, notes: f.notes || "",
+      points_total: Number(f.pts) || 0,
+      points_earned: (f.earned === "" || f.earned == null) ? null : Number(f.earned),
+      attachments: f.attachments || [],
+      post_initial: 0, post_reply1: 0, post_reply2: 0,
+    };
+    if (f.id) {
+      await apiFetch(`/api/v1/assignments/${f.id}`, { method: "PUT", body });
+    } else {
+      await apiFetch("/api/v1/assignments", { method: "POST", body });
+    }
+    const updated = await apiFetch("/api/v1/assignments");
+    setItems(updated.map(mapAssignment));
+    setNetError(null);
+    setForm(null);
+  };
+
+  /* ── course handlers ── */
+  const onSaveCourse = async (f) => {
+    const body = { name: f.name.trim(), short: f.short.trim(), color: f.color, term_id: f.term };
+    if (f.id) {
+      await apiFetch(`/api/v1/courses/${f.id}`, { method: "PUT", body });
+    } else {
+      await apiFetch("/api/v1/courses", { method: "POST", body });
+    }
+    const updated = await apiFetch("/api/v1/courses");
+    const obj = {};
+    updated.forEach((c) => { obj[c.id] = mapCourse(c); });
+    setCourses(obj);
+    HW.COURSES = obj;
+    setNetError(null);
+    setCourseForm(null);
+  };
+
+  const doCalSync = async () => { setSyncing(true); setSyncMsg(null); try { const r = await window.pywebview.api.sync_calendar(); if (r && r.ok) { const s = r.result; setSyncMsg("Synced: " + s.created + " new, " + s.updated + " updated"); } else { setSyncMsg("Sync failed: " + (r ? r.error : "unknown")); } } catch (e) { setSyncMsg("Sync error"); } setSyncing(false); setTimeout(() => setSyncMsg(null), 4000); };
+    const onDeleteCourse = async (id) => {
+    const prevCourses = { ...courses };
+    const prevItems = [...items];
+    setCourses((c) => { const n = { ...c }; delete n[id]; return n; });
+    setItems((xs) => xs.filter((a) => a.course !== id));
+    setCourse((c) => c === id ? "all" : c);
+    setCourseForm(null);
+    try {
+      await apiFetch(`/api/v1/courses/${id}`, { method: "DELETE" });
+      const [updC, updA] = await Promise.all([apiFetch("/api/v1/courses"), apiFetch("/api/v1/assignments")]);
+      const obj = {};
+      updC.forEach((c) => { obj[c.id] = mapCourse(c); });
+      setCourses(obj); HW.COURSES = obj;
+      setItems(updA.map(mapAssignment));
+      setNetError(null);
+    } catch (e) {
+      setCourses(prevCourses); HW.COURSES = prevCourses;
+      setItems(prevItems);
+      setNetError("Can't reach the tracker server — retrying");
+    }
+  };
+
+  /* ── term handlers ── */
+  const onSaveTerm = async (f) => {
+    const body = { name: f.name.trim(), start_date: f.start, end_date: f.end };
+    const term = await apiFetch("/api/v1/terms", { method: "POST", body });
+    const updated = await apiFetch("/api/v1/terms");
+    setTerms(updated.map(mapTerm));
+    setActiveTerm(term.id);
+    setNetError(null);
+    setTermForm(false);
+  };
+
+  const onArchiveTerm = async (id) => {
+    const target = terms.find((tm) => tm.id === id);
+    const willArchive = target && !target.archived;
+    const prevTerms = [...terms];
+    setTerms((ts) => ts.map((tm) => tm.id === id ? { ...tm, archived: !tm.archived } : tm));
+    if (willArchive && activeTerm === id) {
+      const other = terms.find((tm) => tm.id !== id && !tm.archived);
+      setActiveTerm(other ? other.id : null);
+    }
+    try {
+      await apiFetch(`/api/v1/terms/${id}/archive`, { method: "PATCH" });
+      const updated = await apiFetch("/api/v1/terms");
+      setTerms(updated.map(mapTerm));
+      setNetError(null);
+    } catch (e) {
+      setTerms(prevTerms);
+      setNetError("Can't reach the tracker server — retrying");
+    }
+  };
+
+
+  /* ── render ── */
+  const handlers = { expanded, onToggleExpand, onComplete, onStatus, onEdit, onDelete, onPosts, allItems: termItems };
+  const tc = t.courses || {};
+  const curCourse = termCourses.find((c) => c.id === course);
+  const visibleTerms = terms.filter((tm) => !tm.archived || tm.id === activeTerm);
+
+  const View = tab === "done" ? CompletedView
+    : t.layout === "compact" ? CompactView
+    : t.layout === "calendar" ? CalendarView
+    : t.layout === "board" ? BoardView : AgendaView;
+
+  const rootStyle = {
+    "--accent": t.accent,
+    "--font": FONTS[t.font] || FONTS["Segoe UI Variable"],
+    "--row-pad": t.density === "compact" ? "7px" : t.density === "comfy" ? "15px" : "11px",
+    "--gap": t.density === "compact" ? "2px" : t.density === "comfy" ? "10px" : "6px",
+    "--scene-c": t.sceneColor,
+    zoom: (t.uiScale || 100) / 100,
+  };
+  Object.values(courses).forEach((c) => { rootStyle[`--c-${c.id}`] = (tc[c.id] || c.color); });
+
+  let body;
+  if (!activeTerm) {
+    body = (
+      <div className="hw-empty">
+        <Icon name="cal" size={28} />
+        <p>No term yet.</p>
+        <button className="hw-empty-btn" onClick={() => setTermForm(true)}>
+          Add a term</button>
+      </div>
+    );
+  } else if (noCourses) {
+    body = (
+      <div className="hw-empty">
+        <Icon name="dot" size={26} />
+        <p>No courses in {activeTermObj.name}.</p>
+        <button className="hw-empty-btn" onClick={() => setCourseForm({})}>
+          Add a course</button>
+      </div>
+    );
+  } else if (filtered.length === 0 && t.layout !== "calendar") {
+    body = (
+      <div className="hw-empty">
+        <Icon name="check" size={26} />
+        <p>{tab === "done" ? "Nothing completed yet." : "No assignments — add one."}</p>
+      </div>
+    );
+  } else {
+    body = <View items={filtered} {...handlers} />;
+  }
+
+  return (
+    <div className="hw-frame">
+      <div className={"hw-widget theme-" + t.theme + " shape-" + t.shape + " surf-" + t.surface} style={rootStyle}>
+        <div className={"hw-sceneplate scene-" + t.scene} style={{ "--scene-c": t.sceneColor }} />
+
+        {/* chrome — drag region for pywebview */}
+        <div className="hw-chrome pywebview-drag-region">
+          <button className="hw-tl hw-tl-close" title="Close"
+            onClick={(e) => { e.stopPropagation(); window.pywebview && window.pywebview.api.hide_to_tray(); }} />
+          <button className="hw-tl hw-tl-min" title="Minimize"
+            onClick={(e) => { e.stopPropagation(); window.pywebview && window.pywebview.api.minimize(); }} />
+          <button className="hw-tl hw-tl-max" title="Maximize"
+            onClick={(e) => { e.stopPropagation(); setTweak("shape", t.shape === "wide" ? "tall" : "wide"); }} />
+          <div className="hw-chrome-spacer" />
+        </div>
+
+        {/* header */}
+        <header className="hw-head">
+          <div className="hw-head-l">
+            <div className="hw-title">Homework</div>
+            <div className="hw-termwrap">
+              <button className="hw-termbtn" onClick={() => setTermOpen((o) => !o)}>
+                <Icon name="cal" size={13} />
+                {activeTermObj ? activeTermObj.name : "No term"}
+                <Icon name="chev" size={12} />
+              </button>
+              {termOpen && (
+                <div className="hw-coursemenu" onMouseLeave={() => setTermOpen(false)}>
+                  {visibleTerms.length === 0 && <div className="hw-menu-note">No terms yet</div>}
+                  {visibleTerms.map((tm) => (
+                    <div key={tm.id} className={"hw-courseopt row" + (tm.id === activeTerm ? " on" : "")}>
+                      <button className="hw-courseopt-main" onClick={() => { setActiveTerm(tm.id); setTermOpen(false); }}>
+                        <Icon name="cal" size={14} />{tm.name}
+                      </button>
+                      <button className="hw-rowicon" title={tm.archived ? "Unarchive" : "Archive"}
+                        onClick={() => onArchiveTerm(tm.id)}>
+                        <Icon name={tm.archived ? "eye" : "eyeoff"} size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  <button className="hw-menu-add" onClick={() => { setTermForm(true); setTermOpen(false); }}>
+                    <Icon name="plus" size={14} stroke={2.2} />Add term
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="hw-head-r">
+            <button className={"hw-iconbtn" + (syncing ? " spinning" : "")} title={syncMsg || "Sync to Calendar"} onClick={doCalSync} disabled={syncing}><Icon name="sync" size={16} /></button>
+            <div style={{ position: "relative" }}>
+              <button className="hw-iconbtn" title="Reminders" onClick={() => setNotifOpen((o) => !o)}>
+                <Icon name="bell" size={17} />
+                {(dueToday + overdue) > 0 && <span className="hw-badge">{dueToday + overdue}</span>}
+              </button>
+              {notifOpen && <div className="hw-notif-drop">
+                <h4>{"\u26A0"} Needs attention</h4>
+                {urgent.length === 0 && <div className="hw-notif-empty">All clear — nothing due soon</div>}
+                {urgent.map((a) => <div key={a.id} className="hw-notif-item" onClick={() => { setExpanded(a.id); setNotifOpen(false); }}>
+                  <span className="hw-notif-dot" style={{ background: HW.cc(a.course) }} />
+                  <span className="hw-notif-title">{a.title}</span>
+                  <span className="hw-notif-due">{HW.dueLabel(a.due)}</span>
+                </div>)}
+              </div>}
+            </div>
+            <button className="hw-addbtn" disabled={!activeTerm || noCourses}
+              title={noCourses ? "Add a course first" : "New assignment"}
+              onClick={() => setForm({})}>
+              Add
+            </button>
+          </div>
+        </header>
+
+        {/* stats */}
+        <div className="hw-stats four">
+          <StatChip value={dueToday} label="Due today" />
+          <StatChip value={thisWeek} label="This week" />
+          <StatChip value={gradePct == null ? "—" : gradePct} sub={gradePct == null ? "" : "%"} label="Avg grade" />
+          <StatChip value={projected == null ? "—" : projected} sub={projected == null ? "" : "%"} label="Projected" />
+        </div>
+
+        {/* Amendment 1: network error strip — reuses .hw-alert style */}
+        {netError && (
+          <div className="hw-alert" style={{ justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <span className="hw-alert-dot" />
+              {netError}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <button style={{ background: "none", border: "none", cursor: "pointer", color: "currentColor",
+                fontSize: "11px", fontWeight: 600, padding: "0 4px" }}
+                onClick={loadAll}>Retry</button>
+              <button style={{ background: "none", border: "none", cursor: "pointer", color: "currentColor",
+                fontSize: "13px", fontWeight: 600, padding: "0 3px", lineHeight: 1 }}
+                onClick={() => setNetError(null)}>&times;</button>
+            </div>
+          </div>
+        )}
+
+        {overdue > 0 && tab === "upcoming" && !netError && (
+          <div className="hw-alert">
+            <span className="hw-alert-dot" />{overdue} overdue &middot; {dueToday} due today
+          </div>
+        )}
+
+        {/* controls */}
+        <div className="hw-controls">
+          <div className="hw-tabs">
+            <button className={"hw-tab" + (tab === "upcoming" ? " on" : "")} onClick={() => setTab("upcoming")}>
+              Upcoming<span className="hw-tab-n">{active.length}</span></button>
+            <button className={"hw-tab" + (tab === "done" ? " on" : "")} onClick={() => setTab("done")}>
+              Completed<span className="hw-tab-n">{completed.length}</span></button>
+          </div>
+          <div className="hw-coursewrap">
+            <button className="hw-coursebtn" onClick={() => setCourseOpen((o) => !o)}>
+              <span className="hw-cdot" style={{ background: curCourse ? HW.cc(curCourse.id) : "var(--text-2)" }} />
+              {curCourse ? curCourse.short : "All"}
+              <Icon name="chev" size={13} />
+            </button>
+            {courseOpen && (
+              <div className="hw-coursemenu" onMouseLeave={() => setCourseOpen(false)}>
+                <button className={"hw-courseopt" + (course === "all" ? " on" : "")}
+                  onClick={() => { setCourse("all"); setCourseOpen(false); }}>
+                  <span className="hw-cdot" style={{ background: "var(--text-2)" }} />All courses
+                </button>
+                {termCourses.map((c) => (
+                  <div key={c.id} className={"hw-courseopt row" + (c.id === course ? " on" : "")}>
+                    <button className="hw-courseopt-main"
+                      onClick={() => { setCourse(c.id); setCourseOpen(false); }}>
+                      <span className="hw-cdot" style={{ background: HW.cc(c.id) }} />{c.name}
+                    </button>
+                    <button className="hw-rowicon" title="Edit"
+                      onClick={() => { setCourseForm(c); setCourseOpen(false); }}>
+                      <Icon name="pencil" size={13} /></button>
+                    <button className="hw-rowicon danger" title="Delete"
+                      onClick={() => onDeleteCourse(c.id)}>
+                      <Icon name="trash" size={13} /></button>
+                  </div>
+                ))}
+                <button className="hw-menu-add" onClick={() => { setCourseForm({}); setCourseOpen(false); }}>
+                  <Icon name="plus" size={14} stroke={2.2} />Add course
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* body */}
+        <div className="hw-body">{body}</div>
+
+        <footer className="hw-foot">
+          <span>{active.length} active &middot; {termCourses.length} courses</span>
+          <button className="hw-iconbtn sm" title="Settings"
+            onClick={() => window.dispatchEvent(new CustomEvent('hw:tweak:open'))}>
+            <Icon name="gear" size={15} />
+          </button>
+        </footer>
+      </div>
+
+      {form && <AssignmentForm initial={form.id ? form : null} onSave={onSave} onClose={() => setForm(null)} />}
+      {courseForm && <CourseForm initial={courseForm.id ? courseForm : null} terms={visibleTerms}
+        defaultTerm={activeTerm} onSave={onSaveCourse} onClose={() => setCourseForm(null)} />}
+      {termForm && <TermForm onSave={onSaveTerm} onClose={() => setTermForm(false)} />}
+
+      {/* Tweaks panel */}
+      <TweaksPanel>
+        <TweakSection label="Theme presets" />
+        <div className="hw-presets">
+          {PRESETS.map((p) => {
+            const on = t.theme === p.theme && t.accent === p.accent && t.surface === p.surface && t.scene === p.scene;
+            return (
+              <button key={p.name} className={"hw-preset" + (on ? " on" : "")}
+                onClick={() => setTweak({ theme: p.theme, accent: p.accent, surface: p.surface, scene: p.scene, sceneColor: p.sceneColor })}
+                title={p.name}>
+                <span className="hw-preset-sw" style={{ background: `linear-gradient(135deg, ${p.grad[0]}, ${p.grad[1]})` }}>
+                  <span className="hw-preset-acc" style={{ background: p.accent }} />
+                </span>
+                <span className="hw-preset-name">{p.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <TweakSection label="Shape &amp; layout" />
+        <TweakRadio label="Shape" value={t.shape} options={["tall","compact","wide"]}
+          onChange={(v) => setTweak("shape", v)} />
+        <TweakRadio label="View" value={t.layout} options={["agenda","compact","board","calendar"]}
+          onChange={(v) => setTweak("layout", v)} />
+        <TweakRadio label="Density" value={t.density} options={["compact","regular","comfy"]}
+          onChange={(v) => setTweak("density", v)} />
+
+        <TweakSection label="Color" />
+        <TweakRadio label="Mode" value={t.theme} options={["light","dark"]}
+          onChange={(v) => setTweak("theme", v)} />
+        <TweakRadio label="Surface" value={t.surface} options={["acrylic","solid","tinted"]}
+          onChange={(v) => setTweak("surface", v)} />
+        <TweakColor label="Accent" value={t.accent} options={ACCENTS}
+          onChange={(v) => setTweak("accent", v)} />
+        <TweakColor label="Custom" value={t.accent}
+          onChange={(v) => setTweak("accent", v)} />
+        <TweakSelect label="Desktop" value={t.scene}
+          options={["bloom","aurora","dusk","graphite","paper","cheetah","tactical","joker","hacker","custom"]}
+          onChange={(v) => setTweak("scene", v)} />
+        {t.scene === "custom" && (
+          <TweakColor label="Desktop color" value={t.sceneColor}
+            onChange={(v) => setTweak("sceneColor", v)} />
+        )}
+
+        {Object.values(courses).length > 0 && <TweakSection label="Course colors" />}
+        {Object.values(courses).map((c) => (
+          <TweakColor key={c.id} label={c.name} value={tc[c.id] || c.color}
+            onChange={(v) => setTweak("courses", { ...tc, [c.id]: v })} />
+        ))}
+
+        <TweakSection label="Typography" />
+        <TweakSelect label="Font" value={t.font} options={Object.keys(FONTS)}
+          onChange={(v) => setTweak("font", v)} />
+        {/* Amendment 3: uiScale min 85 -> 90 */}
+        <TweakSlider label="Text size" value={t.uiScale} min={90} max={120} step={5} unit="%"
+          onChange={(v) => setTweak("uiScale", v)} />
+
+        <TweakSection label="Window" />
+        <TweakToggle label="Always on top" value={t.alwaysOnTop || false}
+          onChange={(v) => {
+            setTweak("alwaysOnTop", v);
+            if (window.pywebview) window.pywebview.api.set_on_top(v).catch(() => {});
+          }} />
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
