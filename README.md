@@ -15,7 +15,10 @@ Desktop assignment tracking widget for Purdue Global with Google Calendar sync.
 
 - **Backend:** FastAPI + SQLite, self-hosted on a LAN host — REST API for terms, courses, assignments and stats under `/api/v1/`
 - **MCP Server:** FastMCP alongside the backend — 16 tools wrapping the REST API
-- **Widget:** pywebview desktop app — talks to backend over LAN
+- **Widget:** pywebview desktop app — talks to the backend over HTTP
+
+Point the widget at your own backend with the `HW_API_BASE` environment variable, or
+by editing `api_base` in `config.json`. Defaults to `http://127.0.0.1:8000`.
 - **Calendar:** Google Calendar API via OAuth — per-user token, no shared credentials
 
 ## Install
