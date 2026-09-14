@@ -13,8 +13,8 @@ Desktop assignment tracking widget for Purdue Global with Google Calendar sync.
 
 ## Architecture
 
-- **Backend:** FastAPI + SQLite on CT205 (10.0.0.237:8000) — REST API for terms, courses, assignments, stats under /api/v1/
-- **MCP Server:** FastMCP on CT205 port 8001 — 16 tools wrapping the REST API
+- **Backend:** FastAPI + SQLite, self-hosted on a LAN host — REST API for terms, courses, assignments and stats under `/api/v1/`
+- **MCP Server:** FastMCP alongside the backend — 16 tools wrapping the REST API
 - **Widget:** pywebview desktop app — talks to backend over LAN
 - **Calendar:** Google Calendar API via OAuth — per-user token, no shared credentials
 
