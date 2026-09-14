@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import threading
@@ -32,7 +33,7 @@ logging.basicConfig(
 )
 log = logging.getLogger("homework-tracker")
 
-API_BASE_DEFAULT = "http://10.0.0.237:8000"
+API_BASE_DEFAULT = os.environ.get("HW_API_BASE", "http://127.0.0.1:8000")
 
 CONFIG_FILE = _EXE_DIR / "config.json"
 TWEAKS_FILE = _EXE_DIR / "tweaks.json"
