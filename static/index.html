@@ -1855,7 +1855,7 @@ Object.assign(window, {
 const { useState: useS, useMemo, useEffect, useCallback } = React;
 
 /* ── API helpers ───────────────────────────────────────────────────────────── */
-function apiBase() { return window.HW_API_BASE || "http://10.0.0.237:8000"; }
+function apiBase() { return window.HW_API_BASE || "http://127.0.0.1:8000"; }
 
 async function apiFetch(path, opts = {}) {
   const { body, ...rest } = opts;
