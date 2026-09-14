@@ -45,7 +45,7 @@ begin
   ConfigPath := ExpandConstant('{app}\config.json');
   if not FileExists(ConfigPath) then
   begin
-    ConfigContent := '{"api_base": "http://10.0.0.237:8000", "on_top": false}';
+    ConfigContent := '{"api_base": "http://127.0.0.1:8000", "on_top": false}';
     SaveStringToFile(ConfigPath, ConfigContent, False);
   end;
 end;
