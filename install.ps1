@@ -27,7 +27,7 @@ Write-Host "[OK] $pyVer" -ForegroundColor Green
 
 # --- 2. Prompt for API base if not provided ---
 if (-not $ApiBase) {
-    $ApiBase = "http://10.0.0.237:8000"
+    $ApiBase = "http://127.0.0.1:8000"
 }
 Write-Host "[OK] API: $ApiBase" -ForegroundColor Green
 
